@@ -25,3 +25,24 @@ jQuery(document).ready(function ($) {
 //全局作用域中
 $('test') //test
 ```
+
+#### jquery源码
+```javascript
+//先把之前定义的jQuery,$保存到临时变量_jQuery,_$中
+var _jQuery = window.jQuery,
+    _$ = window.$;
+
+jQuery.noConflict = function () {
+	if (window.$ === jQuery) {
+		//把$的控制权出让出来
+        window.$ = _$;
+    }
+
+    if (deep && window.jQuery === jQuery) {
+    	//如果deep === true 也会把jQuery的控制权也出让出来
+        window.jQuery = _jQuery;
+    }
+
+    return jQuery;
+};
+```
