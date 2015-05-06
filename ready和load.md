@@ -33,3 +33,10 @@ console.log('3');
 
 //由于解析执行js代码是在ready前，所以输出顺序1 3 2
 ```
+
+#### DOMContentLoaded和load事件
+
+The DOMContentLoaded event is fired when the initial HTML document has been completely loaded and parsed, without waiting for stylesheets, images, and subframes to finish loading. A very different event - load - should be used only to detect a fully-loaded page.
+> DOMContentLoaded事件是在Dom文档加载完成后触发，而不用等待样式文件，图片和子frame加载。而load事件是所有文件加载完成后触发。
+
+对于支持DOMContentLoaded的高级浏览器，jQuery的dom ready事件使用DOMContentLoaded来触发。
