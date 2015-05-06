@@ -32,7 +32,7 @@ $('test') //test
 var _jQuery = window.jQuery,
     _$ = window.$;
 
-jQuery.noConflict = function () {
+jQuery.noConflict = function (deep) {
 	if (window.$ === jQuery) {
 		//把$的控制权出让出来
         window.$ = _$;
