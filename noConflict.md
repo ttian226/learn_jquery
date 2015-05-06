@@ -2,9 +2,8 @@
 出让jQuery的$控制权。防止jQuery中的$与之前定义过的$冲突。
 
 
-other_lib.js
-
 ```javascript
+//other_lib.js
 var $ = function (selector) {
 	console.log(selector);
 };
