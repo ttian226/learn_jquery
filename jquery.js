@@ -47,6 +47,23 @@
 	jQuery.extend({
 		each: function (obj, callback, args) {
 			//...code...
+		},
+		//合并两个数组并返回一个新的数组
+		merge: function (first, second) {
+			var l = second.length,
+				i = first.length,
+				j = 0;
+
+			if (typeof l === 'number') {
+				for (; j < l; j++) {
+					first[i++] = second[j];
+				}
+			} else {
+				// 什么情况下走到这里？
+			}
+
+			first.length = i;
+			return first;
 		}
 	});
 
