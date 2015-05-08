@@ -46,7 +46,23 @@
 	//静态方法
 	jQuery.extend({
 		each: function (obj, callback, args) {
-			//...code...
+			var i = 0,
+				length = obj.length,
+				isArray = Array.isArray(obj);
+
+			if (isArray) {
+				for (; i < length; i++) {
+					//callback(索引, 值)
+					callback.call(obj[i], i, obj[i]);
+				}
+			} else {
+				for (i in obj) {
+					//callback(属性, 值)
+					callback.call(obj[i], i, obj[i]);
+				}
+			}
+
+			return obj;
 		},
 		//合并两个数组并返回一个新的数组
 		merge: function (first, second) {
