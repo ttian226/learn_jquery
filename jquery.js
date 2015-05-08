@@ -49,10 +49,12 @@
 
 	//静态方法
 	jQuery.extend({
+		isArray: Array.isArray,
+
 		each: function (obj, callback, args) {
 			var i = 0,
 				length = obj.length,
-				isArray = Array.isArray(obj);
+				isArray = jQuery.isArray(obj);
 
 			if (isArray) {
 				for (; i < length; i++) {
@@ -68,6 +70,7 @@
 
 			return obj;
 		},
+
 		//合并两个数组并返回一个新的数组
 		merge: function (first, second) {
 			var l = second.length,
@@ -81,6 +84,7 @@
 			first.length = i;
 			return first;
 		},
+
 		type: function (obj) {
 			if (obj == null) {
 				//null或undefined 
