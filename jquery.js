@@ -51,6 +51,11 @@
 	jQuery.extend({
 		isArray: Array.isArray,
 
+		//判断对象是否是window对象
+		isWindow: function (obj) {
+			return obj != null && obj === obj.window;
+		},
+
 		each: function (obj, callback, args) {
 			var i = 0,
 				length = obj.length,
