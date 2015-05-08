@@ -1,4 +1,8 @@
 (function (window, undefined) {
+	var
+		class2type = {},
+		toString = class2type.toString;
+
 	var jQuery = function (selector) {
 		return new jQuery.fn.init(selector);
 	};
@@ -76,7 +80,26 @@
 
 			first.length = i;
 			return first;
+		},
+		type: function (obj) {
+			if (obj == null) {
+				//null或undefined 
+				return obj + "";
+			}
+
+			if (typeof obj === "object" || typeof obj === "function") {
+				//对象类型
+				return class2type[toString.call(obj)] || "object"
+			} else {
+				//boolean number string
+				return typeof obj;
+			}
 		}
+	});
+
+	//初始化class2type对象，class到type的映射
+	jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function (i, name) {
+		class2type["[object " + name + "]"] = name.toLowerCase();
 	});
 
 	window.jQuery = window.$ = jQuery;
