@@ -54,12 +54,8 @@
 				i = first.length,
 				j = 0;
 
-			if (typeof l === 'number') {
-				for (; j < l; j++) {
-					first[i++] = second[j];
-				}
-			} else {
-				// 什么情况下走到这里？
+			for (; j < l; j++) {
+				first[i++] = second[j];
 			}
 
 			first.length = i;
