@@ -111,5 +111,25 @@
 		class2type["[object " + name + "]"] = name.toLowerCase();
 	});
 
+	function isArraylike(obj) {
+		//如果是数组返回长度，非数组返回false
+		var length = "length" in obj && obj.length,
+			type = jQuery.type(obj);
+
+		//functon和windows对象返回false
+		if (type === "function" || jQuery.isWindow(obj)) {
+			return false;
+		}
+
+		//Node对象 类型是ELEMENT_NODE
+		if (obj.nodeType === 1 && length) {
+			return true;
+		}
+
+		return type === "array" || length === 0 ||
+			//这种啥情况？
+			typeof length === "number" && length > 0 && (length - 1) in obj;
+	}
+	
 	window.jQuery = window.$ = jQuery;
 }(window));
