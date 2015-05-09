@@ -112,7 +112,9 @@
 	});
 
 	function isArraylike(obj) {
-		//如果是数组返回长度，非数组返回false
+		//如果是数组返回长度
+		//如果对象包含length属性(例如HTMLCollection对象)，返回length
+		//其它返回false
 		var length = "length" in obj && obj.length,
 			type = jQuery.type(obj);
 
