@@ -129,7 +129,7 @@
 		}
 
 		return type === "array" || length === 0 ||
-			//这种啥情况？
+			//HTMLCollection对象
 			typeof length === "number" && length > 0 && (length - 1) in obj;
 	}
 	
