@@ -76,7 +76,8 @@
 			return obj;
 		},
 
-		//合并两个数组并返回一个新的数组
+		//合并两个数组并返回一个新的数组，同时改变第一个数组
+		//second可以是一个isArraylike对象(HTMLCollection对象)
 		merge: function (first, second) {
 			var l = second.length,
 				i = first.length,
@@ -132,6 +133,6 @@
 			//HTMLCollection对象
 			typeof length === "number" && length > 0 && (length - 1) in obj;
 	}
-	
+
 	window.jQuery = window.$ = jQuery;
 }(window));
