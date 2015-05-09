@@ -76,6 +76,24 @@
 			return obj;
 		},
 
+		makeArray: function (arr, results) {
+			var ret = results || [];
+
+			if (arr != null) {
+				if (isArraylike(Object(arr))) {
+					//把HTMLCollection对象转化为Dom数组
+					jQuery.merge(ret, 
+						typeof arr === "string" ?
+						[arr] : arr
+					);
+				} else {
+					push.call(ret, arr);
+				}
+			}
+
+			return ret;
+		},
+
 		//合并两个数组并返回一个新的数组，同时改变第一个数组
 		//second可以是一个isArraylike对象(HTMLCollection对象)
 		merge: function (first, second) {
