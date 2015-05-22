@@ -4,7 +4,8 @@
 		push = arr.push,
 		indexOf = arr.indexOf,
 		class2type = {},
-		toString = class2type.toString;
+		toString = class2type.toString,
+		version = "1.0.0";
 
 	var jQuery = function (selector) {
 		return new jQuery.fn.init(selector);
@@ -51,6 +52,8 @@
 
 	//静态方法
 	jQuery.extend({
+		expando: "jQuery" + (version + Math.random()).replace(/\D/g, ""),
+
 		isArray: Array.isArray,
 
 		//判断对象是否是window对象
@@ -122,13 +125,11 @@
 				return obj + "";
 			}
 
-			if (typeof obj === "object" || typeof obj === "function") {
+			return typeof obj === "object" || typeof obj === "function" ?
 				//对象类型
-				return class2type[toString.call(obj)] || "object"
-			} else {
+				class2type[toString.call(obj)] || "object" :
 				//boolean number string
-				return typeof obj;
-			}
+				typeof obj;
 		}
 	});
 
@@ -304,6 +305,131 @@
 
 		return self;
 	};
+
+	function Data() {
+		// 利用Object.defineProperty给this.cache创建属性0
+		// Object.defineProperty创建的属性默认是不可枚举不可写的
+		Object.defineProperty(this.cache = {}, 0, {
+			get: function () {
+				return {};
+			}
+		});
+
+		this.expando = jQuery.expando + Data.uid++;
+	}
+
+	Data.uid = 1;
+
+	Data.accepts = function (owner) {
+		// 1. Node.ELEMENT_NODE
+		// 2. Node.DOCUMENT_NODE
+		// 3. 任何类型
+		return owner.nodeType === 1 || owner.nodeType === 9 || !(+owner.nodeType);
+	}
+
+	Data.prototype = {
+		key: function (owner) {
+			// 判断owner类型
+			if (!Data.accepts(owner)) {
+				return 0;
+			}
+
+			// descriptor一个辅助变量只是给owner赋值用
+			var descriptor = {},
+				// 获取owner对象的this.expando属性值
+				// 当owner对象第一次set数据时，unlock是undefined（即this.expando属性是不存在的）
+				// 当owner对象已经被缓存过数据时，返回unlock值
+				// **对于同一个dom节点，有且只有一个this.expando属性
+				// **对于所有的dom节点this.expando值是相同的，因为都是同一个Data对象实例
+				unlock = owner[this.expando];
+
+			if (!unlock) {
+				// 给unlock赋值一个全局唯一的整数
+				unlock = Data.uid++;
+
+				// 给owner对象属性this.expando赋值unlock
+				// 即owner[this.expando] = unlock，且该属性不可枚举不可写。
+				descriptor[this.expando] = {value: unlock};
+				Object.defineProperties(owner, descriptor);
+			}
+
+			// this.cache真正用来存储缓存数据，它是全局的
+			// 而dom的this.expando只是起到一个索引的作用（unlock可以理解索引值）
+			// 根据unlock值在cache取对应的缓存数据
+			
+			// 如果this.cache[unlock]未定义，则新建一个空对象，以后用来保存数据
+			if (!this.cache[unlock]) {
+				this.cache[unlock] = {};
+			}
+
+			// 返回这个unlock（缓存索引）
+			return unlock;
+		},
+		get: function (owner, key) {
+			var cache = this.cache[this.key(owner)];
+			return key === undefined ? 
+				// 如果key为空返回owner所有缓存数据
+				// 否则返回指定key的缓存数据
+				cache : cache[key];
+		},
+		set: function (owner, data, value) {
+			// 返回owner对于的unlock值，
+			// 如果第一次set返回刚刚建立的，不是第一次返回保存在owner对象属性上（this.expando）的值。
+			var unlock = this.key(owner),
+				// 局部变量cache指向this.cache[unlock]的引用，目的为了通过修改cache而修改缓存数据
+				cache = this.cache[unlock];
+
+			if (typeof data === "string") {
+				// 添加或修改cache对象，缓存为this.cache[unlock][data] = value
+				cache[data] = value;
+			}
+
+			return cache;
+		},
+		access: function (owner, key, value) {
+			var stored;
+
+			// key未undefined时即只传一个参数，这时获取所有数据
+			if (key === undefined ||
+				// key存在并且value不存在，根据key取数据
+				(key && typeof key === 'string' && value === undefined)) {
+				// 调用get()方法获取缓存数据
+				stored = this.get(owner, key);
+				// 返回数据
+				return stored;
+			}
+
+			// 调用set存储数据
+			this.set(owner, key, value);
+
+			// set时，会返回value
+			// 这里value不会有undefined的情况，如果是undefined应该走get()了
+			return value !== undefined ? value : key;
+		},
+		remove: function (owner, key) {
+
+		},
+		hasData: function (owner) {
+
+		}
+	}
+
+	var data_user = new Data();
+	
+	// 数据缓存相关静态函数
+	jQuery.extend({
+		hasData: function (elem) {
+			return data_user.hasData(elem);
+		},
+
+		data: function (elem, name, data) {
+			return data_user.access(elem, name, data);
+		},
+
+		removeData: function (elem, name) {
+			return data_user.remove(elem, name);
+		}
+	});
 
 	window.jQuery = window.$ = jQuery;
 
