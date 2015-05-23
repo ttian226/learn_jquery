@@ -119,6 +119,15 @@
 			return first;
 		},
 
+		// 判断对象是否为空
+		isEmptyObject: function (obj) {
+			var name;
+			for (name in obj) {
+				return false;
+			}
+			return true;
+		},
+
 		type: function (obj) {
 			if (obj == null) {
 				//null或undefined 
@@ -348,9 +357,15 @@
 				unlock = Data.uid++;
 
 				// 给owner对象属性this.expando赋值unlock
-				// 即owner[this.expando] = unlock，且该属性不可枚举不可写。
-				descriptor[this.expando] = {value: unlock};
-				Object.defineProperties(owner, descriptor);
+				try {
+					// 即owner[this.expando] = unlock，且该属性不可枚举不可写。
+					descriptor[this.expando] = {value: unlock};
+					Object.defineProperties(owner, descriptor);
+				} catch (e) {
+					descriptor[this.expando] = unlock;
+					jQuery.extend(owner, descriptor);
+				}
+				
 			}
 
 			// this.cache真正用来存储缓存数据，它是全局的
@@ -373,15 +388,28 @@
 				cache : cache[key];
 		},
 		set: function (owner, data, value) {
-			// 返回owner对于的unlock值，
-			// 如果第一次set返回刚刚建立的，不是第一次返回保存在owner对象属性上（this.expando）的值。
-			var unlock = this.key(owner),
+			var prop,
+				// 返回owner对于的unlock值，
+				// 如果第一次set返回刚刚建立的，不是第一次返回保存在owner对象属性上（this.expando）的值。
+				unlock = this.key(owner),
 				// 局部变量cache指向this.cache[unlock]的引用，目的为了通过修改cache而修改缓存数据
 				cache = this.cache[unlock];
 
 			if (typeof data === "string") {
 				// 添加或修改cache对象，缓存为this.cache[unlock][data] = value
 				cache[data] = value;
+
+			// data为对象,例如$.data(elem, {key: "value"})
+			} else {
+				// dom中的缓存cache为空（是一个空对象Object{}）
+				if (jQuery.isEmptyObject(cache)) {
+					jQuery.extend(this.cache[unlock], data);
+				// 缓存对象不为空，之前已经存储过数据
+				} else {
+					for (prop in data) {
+						cache[prop] = data[prop];
+					}
+				}
 			}
 
 			return cache;
@@ -407,7 +435,38 @@
 			return value !== undefined ? value : key;
 		},
 		remove: function (owner, key) {
+			var i, 
+				name,	//存储缓存key的一个数组[key1, key2...]
+				unlock = this.key(owner),
+				cache = this.cache[unlock];
 
+			// 不指定key，清空这个dom所有缓存
+			if (key === undefined) {
+				this.cache[unlock] = {};
+			} else {
+				if (jQuery.isArray(key)) {
+					name = key;
+				} else {
+					// key是缓存对象的一个属性
+					if (key in cache) {
+						// 数组中只有一个元素
+						name = [key];
+					// key是用空格分隔的的，例如"key1 key2 key3"
+					} else {
+						name = key;
+						name = name in cache ?
+							// 字符串正好是cache的一个属性
+							[name] : 
+							// 用空格分隔字符串返回的数组
+							(name.match(rnotwhite) || []);
+					}
+				}
+
+				i = name.length;
+				while (i--) {
+					delete cache[name[i]];
+				}
+			}
 		},
 		hasData: function (owner) {
 
