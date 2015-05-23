@@ -468,8 +468,11 @@
 				}
 			}
 		},
-		hasData: function (owner) {
-
+		hasData: function(owner) {
+			// 通过判断缓存对象是否为空来判断
+			return !jQuery.isEmptyObject(
+				this.cache[owner[this.expando]] || {}
+			);
 		}
 	}
 
@@ -486,7 +489,7 @@
 		},
 
 		removeData: function (elem, name) {
-			return data_user.remove(elem, name);
+			data_user.remove(elem, name);
 		}
 	});
 
