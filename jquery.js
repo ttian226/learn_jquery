@@ -493,6 +493,74 @@
 		}
 	});
 
+	jQuery.fn.extend({
+		data: function (key, value) {
+			var elem = this[0];
+
+			// 获取所有的值
+			if (key === undefined) {
+
+			}
+
+			// key = {key1: val1, key2: val2, ...}设置多个值
+			if (typeof key === "object") {
+
+			}
+
+			// 根据参数的不同进行set或get
+			return access(this, function (value) {
+				var data;
+					
+				// get, fn返回get的值，并通过access返回。
+				if (elem && value === undefined) {
+					data = data_user.get(elem, key);
+					if (data !== undefined) {
+						return data;
+					}
+					return;
+				}
+
+				// set
+				this.each(function () {
+					data_user.set(this, key, value);
+				});
+			}, null, value, arguments.length > 1, null, true);
+		}
+	});
+
+	var access = jQuery.access = function (elems, fn, key, value, chainable, emptyGet, raw) {
+		var len = elems.length,
+			bulk = key == null;
+
+		// 设置多个值
+		if (jQuery.type(key) === "object") {
+
+		// value存在，只设置一个值
+		} else if (value !== undefined) {
+			chainable = true;
+
+			if (bulk) {
+				if (raw) {
+					// set时，fn只接受一个参数
+					fn.call(elems, value);
+					fn = null;
+				}
+			}
+		}
+
+		// set时chainable为true
+		return chainable ?
+			// set 返回jQuery对象
+			elems : 
+
+			// get
+			bulk ? 
+				// 通过fn返回get的值
+				fn.call(elems) :
+				len ? fn(elems[0], key) : emptyGet;
+
+	};
+
 	window.jQuery = window.$ = jQuery;
 
 }(window));
