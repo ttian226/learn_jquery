@@ -513,6 +513,7 @@
 					
 				// get, fn返回get的值，并通过access返回。
 				if (elem && value === undefined) {
+					// 这里仅需取得第一个dom对象中的缓存内容即可
 					data = data_user.get(elem, key);
 					if (data !== undefined) {
 						return data;
@@ -520,7 +521,7 @@
 					return;
 				}
 
-				// set
+				// set，通过each方法给每个dom对象设置缓存，缓存内容完全相同。
 				this.each(function () {
 					data_user.set(this, key, value);
 				});
