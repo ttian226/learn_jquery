@@ -493,18 +493,28 @@
 		}
 	});
 
+	// 数据缓存相关实例方法
 	jQuery.fn.extend({
 		data: function (key, value) {
-			var elem = this[0];
+			var data,
+				elem = this[0];
 
 			// 获取所有的值
 			if (key === undefined) {
-
+				if (this.length) {
+					data = data_user.get(elem);
+				}
+				return data;
 			}
 
 			// key = {key1: val1, key2: val2, ...}设置多个值
 			if (typeof key === "object") {
-
+				// 遍历当前jQuery对象的dom数组，给每个dom对象设置缓存数据
+				// 使用return遍历后直接返回。不会进入access.
+				return this.each(function () {
+					// 这里this为每个匹配的dom对象
+					data_user.set(this, key);
+				});
 			}
 
 			// 根据参数的不同进行set或get
@@ -526,6 +536,12 @@
 					data_user.set(this, key, value);
 				});
 			}, null, value, arguments.length > 1, null, true);
+		},
+
+		removeData: function (key) {
+			return this.each(function () {
+				data_user.remove(this, key);
+			});
 		}
 	});
 
