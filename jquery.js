@@ -578,6 +578,62 @@
 
 	};
 
+	jQuery.extend({
+		Deferred: function () {
+			var tuples = [
+					["resolve", "done", jQuery.Callbacks("once memory"), "resolved"],
+					["reject", "fail", jQuery.Callbacks("once memory"), "rejected"],
+					["notify", "progress", jQuery.Callbacks("memory")]
+				],
+				// 局部变量state标识状态，默认为pending
+				state = "pending",
+				promise = {
+					state: function () {
+						return state;
+					},
+					// 如果参数为空返回promise对象
+					// 如果obj不为空会把obj合并到deferred对象，并返回这个新的对象
+					promise: function (obj) {
+						return obj != null ? jQuery.extend(obj, promise) : promise;
+					}
+				},
+				deferred = {};
+
+			jQuery.each(tuples, function (i, tuple) {
+				// list = jQuery.Callbacks()
+				var list = tuple[2],
+					// resolved | rejected | undefined
+					stateString = tuple[ 3 ];
+
+				// promise[ done | fail | progress ] = jQuery.Callbacks.add
+				promise[tuple[1]] = list.add;
+
+				// 当resolved,rejected两种状态时，往jQuery.Callbacks对象添加回调函数
+				if (stateString) {
+					// 当resolve，reject触发时，会调用回调函数改变状态
+					list.add(function () {
+						state = stateString;
+					});
+				}
+
+				// deferred[ resolve | reject | notify ]
+				deferred[tuple[0]] = function () {
+					// 通过调用fireWith来间接调用fire
+					deferred[tuple[0] + "With"](this, arguments);
+					return this;
+				}
+				// deferred[ resolveWith | rejectWith | notifyWith ] = jQuery.Callbacks.fireWith
+				deferred[tuple[0] + "With"] = list.fireWith;
+
+			});
+
+			// 把promise对象的属性合并到deferred对象上
+			promise.promise(deferred);
+
+			return deferred;
+		}
+	});
+
 	window.jQuery = window.$ = jQuery;
 
 }(window));
