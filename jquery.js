@@ -579,7 +579,7 @@
 	};
 
 	jQuery.extend({
-		Deferred: function () {
+		Deferred: function (func) {
 			var tuples = [
 					["resolve", "done", jQuery.Callbacks("once memory"), "resolved"],
 					["reject", "fail", jQuery.Callbacks("once memory"), "rejected"],
@@ -590,6 +590,16 @@
 				promise = {
 					state: function () {
 						return state;
+					},
+					always: function() {
+						deferred.done(arguments).fail(arguments);
+						return this;
+					},
+					then: function () {
+						var fns = arguments;
+						return jQuery.Deferred(function () {
+
+						}).promise();
 					},
 					// 如果参数为空返回promise对象
 					// 如果obj不为空会把obj合并到deferred对象，并返回这个新的对象
@@ -622,13 +632,18 @@
 					deferred[tuple[0] + "With"](this, arguments);
 					return this;
 				}
+				
 				// deferred[ resolveWith | rejectWith | notifyWith ] = jQuery.Callbacks.fireWith
 				deferred[tuple[0] + "With"] = list.fireWith;
-
 			});
 
 			// 把promise对象的属性合并到deferred对象上
 			promise.promise(deferred);
+
+			if (func) {
+				// 如果func存在会调用函数，并且把deferred作为参数传给func
+				func.call(deferred, deferred);
+			}
 
 			return deferred;
 		}
