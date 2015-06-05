@@ -54,6 +54,10 @@
 	jQuery.extend({
 		expando: "jQuery" + (version + Math.random()).replace(/\D/g, ""),
 
+		isFunction: function (obj) {
+			return jQuery.type(obj) === "function";
+		},
+
 		isArray: Array.isArray,
 
 		//判断对象是否是window对象
@@ -273,8 +277,8 @@
 							// 调用fire立即执行回调,memory为之前fire时保存的参数
 							fire(memory);
 						}
-						
 					}
+					return this;
 				},
 
 				fireWith: function (context, args) {
@@ -595,10 +599,17 @@
 						deferred.done(arguments).fail(arguments);
 						return this;
 					},
-					then: function () {
+					then: function (/* fnDone, fnFail, fnProgress */) {
+						// fns = [fnDone, fnFail, fnProgress]
 						var fns = arguments;
-						return jQuery.Deferred(function () {
+						return jQuery.Deferred(function (newDefer) {
+							jQuery.each(tuples, function (i, tuple) {
+								// fn = fnDone | fnFail | fnProgress
+								var fn = jQuery.isFunction(fns[i]) && fns[i];
 
+								// deferred.done(fnDone) | deferred.fail(fnFail) | deferred.progress(fnProgress)
+								deferred[tuple[1]](fn);
+							});
 						}).promise();
 					},
 					// 如果参数为空返回promise对象
