@@ -602,13 +602,28 @@
 					then: function (/* fnDone, fnFail, fnProgress */) {
 						// fns = [fnDone, fnFail, fnProgress]
 						var fns = arguments;
+						// 通过jQuery.Deferred()返回一个新的promise对象，参数newDefer为这个新的deferred对象
 						return jQuery.Deferred(function (newDefer) {
+							// this === newDefer
 							jQuery.each(tuples, function (i, tuple) {
 								// fn = fnDone | fnFail | fnProgress
 								var fn = jQuery.isFunction(fns[i]) && fns[i];
 
 								// deferred.done(fnDone) | deferred.fail(fnFail) | deferred.progress(fnProgress)
-								deferred[tuple[1]](fn);
+								deferred[tuple[1]](function () {
+									// this === promise
+									var returned = fn && fn.apply(this, arguments);
+									if (returned && jQuery.isFunction(returned.promise)) {
+										
+									} else {
+										// 上下文为新deferred对象的promise对象
+										var context = this === promise ? newDefer.promise() : this,
+											// apply参数为returned数组
+											args = fn ? [returned] : arguments;
+										// newDefer[ resolve | reject | notify ]
+										newDefer[tuple[0] + "With"](context, args);
+									}
+								});
 							});
 						}).promise();
 					},
@@ -640,7 +655,8 @@
 				// deferred[ resolve | reject | notify ]
 				deferred[tuple[0]] = function () {
 					// 通过调用fireWith来间接调用fire
-					deferred[tuple[0] + "With"](this, arguments);
+					// 当调用对象为deferred对象时，回调函数内的上下文对象设置为promise对象
+					deferred[tuple[0] + "With"](this === deferred ? promise : this, arguments);
 					return this;
 				}
 				
