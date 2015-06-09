@@ -196,7 +196,6 @@
     }
 
     jQuery.Callbacks = function(options) {
-
         options = typeof options === "string" ?
             // 如果optionsCache中存在缓存数据直接取，否则通过createOptions创建缓存并返回数据
             (optionsCache[options] || createOptions(options)) :
@@ -213,6 +212,8 @@
             firingLength,
             // 回调函数数组
             list = [],
+            // 只有options包含once时才返回false，否则返回[]
+            stack = !options.once && [],
 
             fire = function(data) {
                 // 当options为memory时，memory=data，否则memory=undefined
@@ -233,9 +234,17 @@
                     }
                 }
 
-                // options为once
-                if (options.once === true) {
-                    self.disable();
+                if (list) {
+                    // 不包含once
+                    if (stack) {
+
+                    // 包含memory时（同时可能包含once）
+                    } else if (memory) {
+                        list = [];
+                    // 包含once 但不包含memory
+                    } else {
+                        self.disable();
+                    }
                 }
             },
 
@@ -313,9 +322,11 @@
                         // list && list.length 这个表达式如果list为true时返回的是后面的值list.length
                         // 通过给表达式加!!可以把整数(list.length)转换为true。
                         !!(list && list.length);
+                },
+                list: function() {
+                    return list;
                 }
             };
-
         return self;
     };
 
@@ -480,7 +491,7 @@
                 this.cache[owner[this.expando]] || {}
             );
         }
-    }
+    };
 
     var data_user = new Data();
 
