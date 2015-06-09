@@ -322,9 +322,6 @@
                         // list && list.length 这个表达式如果list为true时返回的是后面的值list.length
                         // 通过给表达式加!!可以把整数(list.length)转换为true。
                         !!(list && list.length);
-                },
-                list: function() {
-                    return list;
                 }
             };
         return self;
