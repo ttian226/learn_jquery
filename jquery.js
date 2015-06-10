@@ -3,6 +3,7 @@
         arr = [],
         push = arr.push,
         indexOf = arr.indexOf,
+        slice = arr.slice,
         class2type = {},
         toString = class2type.toString,
         version = "1.0.0";
@@ -238,10 +239,10 @@
                     // 不包含once
                     if (stack) {
 
-                    // 包含memory时（同时可能包含once）
+                        // 包含memory时（同时可能包含once）
                     } else if (memory) {
                         list = [];
-                    // 包含once 但不包含memory
+                        // 包含once 但不包含memory
                     } else {
                         self.disable();
                     }
@@ -683,6 +684,36 @@
             }
 
             return deferred;
+        },
+
+        when: function(subordinate) {
+            var i = 0,
+                resolveValues = slice.call(arguments),
+                length = resolveValues.length,
+
+                // 如果参数个数不为1直接返回length
+                remaining = length !== 1 ||
+                // 参数个数为一个时，如果参数对象为deferred对象时返回1，否则返回0
+                subordinate && jQuery.isFunction(subordinate.promise) ? length : 0,
+
+                // the master Deferred 如果仅有一个deferred对象指向这个deferred对象，否则创建一个新的deferred对象
+                deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
+
+                updateFunc = function() {
+
+                };
+
+            // 多个参数时
+            if (length > 1) {
+                // ....
+            }
+
+            // 没有参数或参数不为Deferred对象时
+            if (!remaining) {
+                // ...
+            }
+
+            return deferred.promise();
         }
     });
 
