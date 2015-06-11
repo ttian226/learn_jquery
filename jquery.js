@@ -236,14 +236,13 @@
                 }
 
                 if (list) {
-                    // 不包含once
                     if (stack) {
-
-                        // 包含memory时（同时可能包含once）
+                        // 不包含once
                     } else if (memory) {
+                        // 包含memory时（同时可能包含once）
                         list = [];
-                        // 包含once 但不包含memory
                     } else {
+                        // 包含once 但不包含memory
                         self.disable();
                     }
                 }
@@ -693,24 +692,45 @@
 
                 // 如果参数个数不为1直接返回length
                 remaining = length !== 1 ||
-                // 参数个数为一个时，如果参数对象为deferred对象时返回1，否则返回0
-                subordinate && jQuery.isFunction(subordinate.promise) ? length : 0,
+                    // 参数个数为一个时，如果参数对象为deferred对象时返回1，否则返回0
+                    subordinate && jQuery.isFunction(subordinate.promise) ? length : 0,
 
                 // the master Deferred 如果仅有一个deferred对象指向这个deferred对象，否则创建一个新的deferred对象
                 deferred = remaining === 1 ? subordinate : jQuery.Deferred(),
 
-                updateFunc = function() {
+                updateFunc = function(i, values) {
+                    return function(value) {
+                        values[i] = arguments.length > 1 ? slice.call(arguments) : value;
+                        if (!(--remaining)) {
+                            deferred.resolveWith(null, values);
+                        }
+                    };
+                },
 
-                };
+                resolveContexts;
 
             // 多个参数时
             if (length > 1) {
-                // ....
+                resolveContexts = new Array(length);
+                for (; i < length; i++) {
+                    // 检查每个对象是否是Deferred对象
+                    if (resolveValues[i] && jQuery.isFunction(resolveValues[i].promise)) {
+
+                        resolveValues[i].promise()
+                            .done(updateFunc(i, resolveValues))
+                            .fail(deferred.reject);
+
+                    } else {
+                        --remaining;
+                    }
+                }
             }
 
-            // 没有参数或参数不为Deferred对象时
+            // 参数不为Deferred对象时，由于不是deferred对象，不需要等待被触发。
             if (!remaining) {
-                // ...
+                // 这个deferred为内部新创建的master deferred
+                // resolve the master，resolve的参数为$.when的参数
+                deferred.resolveWith(resolveContexts, resolveValues);
             }
 
             return deferred.promise();
