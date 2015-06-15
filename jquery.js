@@ -67,19 +67,28 @@
         },
 
         each: function(obj, callback, args) {
-            var i = 0,
+            var value,
+                i = 0,
                 length = obj.length,
                 isArray = jQuery.isArray(obj);
 
             if (isArray) {
                 for (; i < length; i++) {
                     //callback(索引, 值)
-                    callback.call(obj[i], i, obj[i]);
+                    value = callback.call(obj[i], i, obj[i]);
+
+                    if (value === false) {
+                        break;
+                    }
                 }
             } else {
                 for (i in obj) {
                     //callback(属性, 值)
-                    callback.call(obj[i], i, obj[i]);
+                    value = callback.call(obj[i], i, obj[i]);
+
+                    if (value === false) {
+                        break;
+                    }
                 }
             }
 
