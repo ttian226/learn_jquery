@@ -748,14 +748,30 @@
         }
     });
 
+    jQuery.Event = function(src, props) {
+
+    };
+
+    jQuery.Event.prototype = {
+
+    };
+
+    var eventCache = {};
+
     jQuery.event = {
         add: function(elem, types, handler) {
+            var eventHandle = function(e) {
+                return jQuery.event.dispatch.apply(elem, arguments);
+            };
+
+            eventCache['handler'] = handler;
+
             if (elem.addEventListener) {
-                elem.addEventListener(types, handler, false);
+                elem.addEventListener(types, eventHandle, false);
             }
         },
-        dispatch: function() {
-
+        dispatch: function(event) {
+            eventCache['handler'].call(this, event);
         },
         handlers: function() {
 
