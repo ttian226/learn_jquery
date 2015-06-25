@@ -155,7 +155,9 @@
                 class2type[toString.call(obj)] || "object" :
                 //boolean number string
                 typeof obj;
-        }
+        },
+
+        now: Date.now
     });
 
     //初始化class2type对象，class到type的映射
@@ -749,11 +751,62 @@
     });
 
     jQuery.Event = function(src, props) {
+        if (!(this instanceof jQuery.Event)) {
+            return new jQuery.Event(src, props);
+        }
 
+        if (src && src.type) {
+            this.originalEvent = src;
+            this.type = src.type;
+            this.isDefaultPrevented = src.isDefaultPrevented;
+        } else {
+            this.type = src;
+        }
+
+        if (props) {
+            jQuery.extend(this, props);
+        }
+
+        this.timeStamp = src && src.timeStamp || jQuery.now();
+        this[jQuery.expando] = true;
     };
 
     jQuery.Event.prototype = {
+        isDefaultPrevented: returnFalse,
+        isPropagationStopped: returnFalse,
+        isImmediatePropagationStopped: returnFalse,
 
+        preventDefault: function() {
+            var e = this.originalEvent;
+
+            this.isDefaultPrevented = returnTrue;
+
+            if (e && e.preventDefault) {
+                e.preventDefault();
+            }
+        },
+
+        stopPropagation: function() {
+            var e = this.originalEvent;
+
+            this.isPropagationStopped = returnTrue;
+
+            if (e && e.stopPropagation) {
+                e.stopPropagation();
+            }
+        },
+
+        stopImmediatePropagation: function() {
+            var e = this.originalEvent;
+
+            this.isImmediatePropagationStopped = returnTrue;
+
+            if (e && e.stopImmediatePropagation) {
+                e.stopImmediatePropagation();
+            }
+
+            e.stopPropagation();
+        }
     };
 
     var eventCache = {};
@@ -776,8 +829,8 @@
         handlers: function() {
 
         },
-        fix: function() {
-
+        fix: function(event) {
+            // var event = new jQuery.Event(event);
         }
     };
 
@@ -786,6 +839,14 @@
             jQuery.event.add(this[0], types, fn);
         }
     });
+
+    function returnTrue() {
+        return true;
+    }
+
+    function returnFalse() {
+        return false;
+    }
 
     window.jQuery = window.$ = jQuery;
 
