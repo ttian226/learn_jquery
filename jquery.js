@@ -15,6 +15,8 @@
     jQuery.fn = jQuery.prototype = {
         constructor: jQuery,
         init: function(selector) {
+            this.selector = selector;
+            this[0] = document.querySelectorAll(selector)[0];
             return this;
         },
         //实例方法
@@ -743,6 +745,29 @@
             }
 
             return deferred.promise();
+        }
+    });
+
+    jQuery.event = {
+        add: function(elem, types, handler) {
+            if (elem.addEventListener) {
+                elem.addEventListener(types, handler, false);
+            }
+        },
+        dispatch: function() {
+
+        },
+        handlers: function() {
+
+        },
+        fix: function() {
+
+        }
+    };
+
+    jQuery.fn.extend({
+        on: function(types, fn) {
+            jQuery.event.add(this[0], types, fn);
         }
     });
 
