@@ -758,7 +758,7 @@
         if (src && src.type) {
             this.originalEvent = src;
             this.type = src.type;
-            this.isDefaultPrevented = src.isDefaultPrevented;
+            this.isDefaultPrevented = src.defaultPrevented;
         } else {
             this.type = src;
         }
@@ -824,13 +824,37 @@
             }
         },
         dispatch: function(event) {
+            // 返回jQuery.Event对象
+            event = jQuery.event.fix(event);
+
+            // 给缓存的回调函数传入jQuery.Event对象
             eventCache['handler'].call(this, event);
         },
         handlers: function() {
 
         },
         fix: function(event) {
-            // var event = new jQuery.Event(event);
+            if (event[jQuery.expando]) {
+                return event;
+            }
+            var props = "altKey bubbles cancelable ctrlKey currentTarget eventPhase metaKey relatedTarget shiftKey target timeStamp view which button buttons clientX clientY offsetX offsetY pageX pageY screenX screenY toElement".split(" ");
+
+            // 原始事件引用
+            var originalEvent = event;
+
+            // 创建事件对象
+            event = new jQuery.Event(originalEvent);
+
+            var i = props.length,
+                prop;
+
+            // 给event添加鼠标事件属性
+            while (i--) {
+                prop = props[i];
+                event[prop] = originalEvent[prop];
+            }
+
+            return event;
         }
     };
 
