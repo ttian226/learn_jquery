@@ -872,6 +872,21 @@
         return false;
     }
 
+    var _jQuery = window.jQuery,
+        _$ = window.$;
+
+    jQuery.noConflict = function (deep) {
+        if (window.$ === jQuery) {
+            window.$ = _$;
+        }
+
+        if (deep && window.jQuery === jQuery) {
+            window.jQuery = _jQuery;
+        }
+
+        return jQuery;
+    };
+
     window.jQuery = window.$ = jQuery;
 
 }(window));
