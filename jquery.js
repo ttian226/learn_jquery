@@ -12,6 +12,7 @@
         return new jQuery.fn.init(selector);
     };
 
+    //实例方法
     jQuery.fn = jQuery.prototype = {
         constructor: jQuery,
         init: function(selector) {
@@ -19,9 +20,38 @@
             this[0] = document.querySelectorAll(selector)[0];
             return this;
         },
-        //实例方法
         each: function(callback, args) {
             return jQuery.each(this, callback, args);
+        },
+        get: function (num) {
+            return num != null ?
+
+                //当num>=0时，返回第num个element对象(num是当前jQuery实例的一个属性)
+                //当num<0时，反向获取element对象。
+                (num < 0 ? this[num + this.length] : this[num]) :
+
+                //当不传任何参数时，仅仅把当前jQuery实例转换为数组并返回
+                slice.call(this);
+        },
+        // 压栈
+        pushStack: function (elems) {
+            //elems dom数组
+            //this.constructor 当前的jQuery对象
+            //把elems合并到当前的jQuery对象上
+            var ret = jQuery.merge(this.constructor(), elems);
+
+            //这里把当前的实例this赋值给prevObject属性。
+            //this是压栈前的对象
+            ret.prevObject = this;
+            ret.context = this.context;
+
+            //返回这个新的jQuery对象
+            return ret;
+        },
+        end: function () {
+            //返回prevObject保存的jQuery对象
+            //或返回当前jQuery对象，如果prevObject属性不存在。
+            return this.prevObject || this.constructor(null);
         }
     };
 
