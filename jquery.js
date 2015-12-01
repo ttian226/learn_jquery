@@ -930,7 +930,6 @@
                         j = 0;
                         // 遍历每个className
                         while ((clazz = classes[j++])) {
-                            console.log(clazz);
                             // 如果不存在则添加
                             if (cur.indexOf(' ' + clazz + ' ') < 0) {
                                 cur += clazz + ' ';
