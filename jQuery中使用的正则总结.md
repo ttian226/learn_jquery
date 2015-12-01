@@ -29,3 +29,13 @@ var list = somestr.match(rtypenamespace);   //["abcd.123", "abcd", "123"]
 * 第一个分组`([^.]*)`匹配到了`abcd`
 * 第二个分组中的`\.`匹配到了接下来的`.`
 * 第二个分组中的`(.+)`匹配到了余下的字符串`123`
+
+#### trim函数
+
+```javascript
+var rtrim = /^[\s]+|[\s]+$/g;
+
+var trim = function (text) {
+    return text == null ? '' : (text + '').replace(rtrim, '');
+};
+```

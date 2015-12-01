@@ -6,7 +6,8 @@
         slice = arr.slice,
         class2type = {},
         toString = class2type.toString,
-        version = "1.0.0";
+        version = "1.0.0",
+        rtrim = /^[\s]+|[\s]+$/g;
 
     var jQuery = function(selector) {
         return new jQuery.fn.init(selector);
@@ -129,6 +130,10 @@
             }
 
             return obj;
+        },
+
+        trim: function (text) {
+            return text == null ? '' : (text + '').replace(rtrim, '');
         },
 
         makeArray: function(arr, results) {
@@ -895,6 +900,54 @@
     jQuery.fn.extend({
         on: function(types, fn) {
             jQuery.event.add(this[0], types, fn);
+        }
+    });
+
+    var rclass = /[\t\r\n\f]/g;
+
+    jQuery.fn.extend({
+        addClass: function (value) {
+            var classes, elem, cur, j, clazz, finalValue,
+                proceed = typeof value === 'string' && value,
+                i = 0;
+                len = this.length;
+
+            if (proceed) {
+                // 要添加的className数组
+                classes = (value || '').match(rnotwhite) || [];
+
+                // 遍历每个节点
+                for (; i < len; i++) {
+                    elem = this[i];
+
+                    // 获取当前节点的className
+                    var cn = elem.className ? (' ' + elem.className + ' ').replace(rclass, '') : ' ';
+                    cur = elem.nodeType === 1 && cn;
+
+                    // 如果className不存在,cur也返回true(长度为1的空串)
+                    // 只有elem.nodeType不等于1时cur才返回false
+                    if (cur) {
+                        j = 0;
+                        // 遍历每个className
+                        while ((clazz = classes[j++])) {
+                            console.log(clazz);
+                            // 如果不存在则添加
+                            if (cur.indexOf(' ' + clazz + ' ') < 0) {
+                                cur += clazz + ' ';
+                            }
+                        }
+
+                        // 去除两边空格
+                        finalValue = jQuery.trim(cur);
+                        // 给节点添加类名
+                        if (elem.className !== finalValue) {
+                            elem.className = finalValue;
+                        }
+                    }
+                }
+            }
+
+            return this;
         }
     });
 
