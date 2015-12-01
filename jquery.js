@@ -17,7 +17,11 @@
         constructor: jQuery,
         init: function(selector) {
             this.selector = selector;
-            this[0] = document.querySelectorAll(selector)[0];
+            var elems = document.querySelectorAll(selector);
+            this.length = elems.length;
+            for (var i = 0; i < elems.length; i++) {
+                this[i] = elems[i];
+            }
             return this;
         },
         each: function(callback, args) {
