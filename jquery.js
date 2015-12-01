@@ -947,6 +947,41 @@
             }
 
             return this;
+        },
+
+        removeClass: function (value) {
+            var classes, elem, cur, j, clazz, finalValue,
+                proceed = typeof value === 'string' && value,
+                i = 0;
+            len = this.length;
+
+            if (proceed) {
+                classes = (value || '').match(rnotwhite) || [];
+
+                for (; i < len; i++) {
+                    elem = this[i];
+
+                    var cn = elem.className ? (' ' + elem.className + ' ').replace(rclass, '') : ' ';
+                    cur = elem.nodeType === 1 && cn;
+
+                    if (cur) {
+                        j = 0;
+                        while ((clazz = classes[j++])) {
+                            // 如果要删除的className已存在则去除
+                            if (cur.indexOf(' ' + clazz + ' ') >= 0) {
+                                cur = cur.replace(' ' + clazz + ' ', ' ');
+                            }
+                        }
+
+                        finalValue = value ? jQuery.trim(cur) : '';
+                        if (elem.className !== finalValue) {
+                            elem.className = finalValue;
+                        }
+                    }
+                }
+            }
+
+            return this;
         }
     });
 
