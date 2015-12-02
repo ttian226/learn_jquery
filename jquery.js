@@ -17,13 +17,22 @@
     jQuery.fn = jQuery.prototype = {
         constructor: jQuery,
         init: function(selector) {
-            this.selector = selector;
-            var elems = document.querySelectorAll(selector);
-            this.length = elems.length;
-            for (var i = 0; i < elems.length; i++) {
-                this[i] = elems[i];
+            // 通过css选择器返回的jQuery对象
+            if (typeof selector === 'string') {
+                this.selector = selector;
+                var elems = document.querySelectorAll(selector);
+                this.length = elems.length;
+                for (var i = 0; i < elems.length; i++) {
+                    this[i] = elems[i];
+                }
+                return this;
+            } else if (selector.nodeType) {
+                // 处理$(DOMElement)返回的jQuery对象
+                this[0] = selector;
+                this.length = 1;
+                return this;
             }
-            return this;
+
         },
         each: function(callback, args) {
             return jQuery.each(this, callback, args);
@@ -107,7 +116,7 @@
             var value,
                 i = 0,
                 length = obj.length,
-                isArray = jQuery.isArray(obj);
+                isArray = isArraylike(obj);
 
             if (isArray) {
                 for (; i < length; i++) {
@@ -982,6 +991,48 @@
             }
 
             return this;
+        },
+
+        toggleClass: function (value, stateVal) {
+            var type = typeof value;
+
+            // 设置第二个参数时,内部调用addClass或removeClass
+            if (typeof stateVal === 'boolean' && type === 'string') {
+                return stateVal ? this.addClass(value) : this.removeClass(value);
+            }
+
+            // 遍历元素
+            return this.each(function () {
+                if (type === 'string') {
+                    var className,
+                        i = 0,
+                        self = jQuery(this),    // 取得当前元素的jquery对象
+                        classNames = value.match(rnotwhite) || [];
+
+                    while (className = classNames[i++]) {
+                        // 当指定的class存在时删除,否则添加
+                        if (self.hasClass(className)) {
+                            self.removeClass(className);
+                        } else {
+                            self.addClass(className);
+                        }
+                    }
+                }
+            });
+        },
+
+        hasClass: function (selector) {
+            var className = ' ' + selector + ' ',
+                i = 0,
+                l = this.length;
+
+            for (; i < l; i++) {
+                if (this[i].nodeType === 1 && (' ' + this[i].className + ' ').replace(rclass, ' ').indexOf(className) >= 0) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     });
 

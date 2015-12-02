@@ -39,3 +39,11 @@ var trim = function (text) {
     return text == null ? '' : (text + '').replace(rtrim, '');
 };
 ```
+
+#### 替换回车换行制表符
+
+```javascript
+var rclass = /[\t\r\n\f]/g;
+// 替换回车换行制表符为空格
+( " " + elem.className + " " ).replace( rclass, " " )
+```
