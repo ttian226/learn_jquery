@@ -3108,8 +3108,13 @@
 
     jQuery.fn.extend({
         text: function (value) {
-            var func = function () {
+            var func = function (value) {
+                // 无参数获取textContent
+                if (value === undefined) {
+                    return jQuery.text(this);
+                } else {
 
+                }
             };
             return access(this, func, null, value, arguments.length);
         }
