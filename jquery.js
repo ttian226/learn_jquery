@@ -2701,6 +2701,10 @@
         } else if (value !== undefined) {
             chainable = true;
 
+            if (!jQuery.isFunction(value)) {
+                raw = true;
+            }
+
             if (bulk) {
                 if (raw) {
                     // set时，fn只接受一个参数
@@ -3113,10 +3117,30 @@
                 if (value === undefined) {
                     return jQuery.text(this);
                 } else {
-
+                    // 设置textContent
+                    this.empty().each(function () {
+                        if (this.nodeType === 1 || this.nodeType === 9 || this.nodeType === 11) {
+                            this.textContent = value;
+                        }
+                    });
                 }
             };
             return access(this, func, null, value, arguments.length);
+        },
+
+        empty: function () {
+            var elem,
+                i = 0;
+
+            for (; (elem = this[i]) != null; i++) {
+                if (elem.nodeType === 1) {
+
+                    // 通过设置Node.textContent为空删除内部元素
+                    elem.textContent = '';
+                }
+            }
+
+            return this;
         }
     });
 
