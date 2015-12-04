@@ -3131,7 +3131,7 @@
 
     jQuery.extend({
         buildFragment: function (elems, context, scripts, selection) {
-            var elem, tmp, tag,
+            var elem, tmp, tag, wrap, j,
                 fragment = context.createDocumentFragment(),
                 nodes = [],
                 i = 0,
