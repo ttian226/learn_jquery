@@ -113,6 +113,10 @@
             return obj != null && obj === obj.window;
         },
 
+        nodeName: function (elem, name) {
+            return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+        },
+
         each: function(obj, callback, args) {
             var value,
                 i = 0,
@@ -3113,7 +3117,17 @@
 
     var rhtml = /<|&#?\w+;/,
         rtagName = /<([\w:]+)/,
-        rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi;
+        rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
+
+        // 对添加的如下标签做特殊处理,例如tr标签添加到div后会变成文本节点
+        wrapMap = {
+            option: [ 1, "<select multiple='multiple'>", "</select>" ],
+            thead: [ 1, "<table>", "</table>" ],
+            col: [ 2, "<table><colgroup>", "</colgroup></table>" ],
+            tr: [ 2, "<table><tbody>", "</tbody></table>" ],
+            td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
+            _default: [ 0, "", "" ]
+        };
 
     jQuery.extend({
         buildFragment: function (elems, context, scripts, selection) {
@@ -3138,8 +3152,14 @@
                         tmp = tmp || fragment.appendChild(context.createElement('div'));
                         // 获取标签名
                         tag = (rtagName.exec(elem) || ['', ''])[1].toLowerCase();
+                        wrap = wrapMap[tag] || wrapMap._default;
                         // 把类似<div/>这样的节点替换为<div></div>,并把html文本加入到临时节点中
-                        tmp.innerHTML = elem.replace(rxhtmlTag, '<$1></$2>');
+                        tmp.innerHTML = wrap[1] + elem.replace(rxhtmlTag, '<$1></$2>') + wrap[2];
+
+                        j = wrap[0];
+                        while (j--) {
+                            tmp = tmp.lastChild;
+                        }
 
                         // 把新的节点添加到nodes中
                         jQuery.merge(nodes, tmp.childNodes);
@@ -3162,6 +3182,17 @@
         }
     });
 
+    function manipulationTarget(elem, content) {
+        // 当节点为table并且要添加的子节点是tr时
+        // content有可能是DocumentFragment类型,如果是取第一个子节点作为参照
+        if (jQuery.nodeName(elem, 'table') && jQuery.nodeName(content.nodeType !== 11 ? content : content.firstChild, 'tr')) {
+            // 如果table节点下有tbody则返回这个tbody节点,如果没有则创建一个tbody节点并返回
+            return elem.getElementsByTagName('tbody')[0] || elem.appendChild(elem.ownerDocument.createElement('tbody'));
+        } else {
+            return elem;
+        }
+    }
+
     jQuery.fn.extend({
         text: function (value) {
             var func = function (value) {
@@ -3182,7 +3213,7 @@
 
         append: function () {
             return this.domManip(arguments, function (elem) {
-                var target = this;
+                var target = manipulationTarget(this, elem);
                 target.appendChild(elem);
             })
         },
