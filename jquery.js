@@ -3129,6 +3129,7 @@
                 if (elem || elem === 0) {
                     if (jQuery.type(elem) === 'object') {
                         // jQuery对象或Dom
+                        jQuery.merge(nodes, elem.nodeType ? [elem] : elem);
                     } else if (!rhtml.test(elem)) {
                         // 把非html文本转换为文本节点
                         nodes.push(context.createTextNode(elem));
@@ -3181,7 +3182,8 @@
 
         append: function () {
             return this.domManip(arguments, function (elem) {
-
+                var target = this;
+                target.appendChild(elem);
             })
         },
 
@@ -3204,12 +3206,30 @@
             // 抹平嵌套的数组,这里args可以是[item1, item2]或[[item1, item2]]
             args = concat.apply([], args);
 
-            var fragment,
+            var fragment, first, node,
+                i = 0;
                 l = this.length;
 
             if (l) {
+                // 返回生成的文档片段
                 fragment = jQuery.buildFragment(args, this[0].ownerDocument, false, this);
+                // 获取文档片段的第一个子元素
+                first = fragment.firstChild;
+
+                // args只有一个元素时fragment为dom元素,有多个元素时是文档片段(DocumentFragment类型)
+                if (fragment.childNodes.length === 1) {
+                    fragment = first;
+                }
+
+                if (first) {
+                    for (; i < l; i++) {
+                        node = fragment;
+                        callback.call(this[i], node, i);
+                    }
+                }
             }
+
+            return this;
         }
     });
 
