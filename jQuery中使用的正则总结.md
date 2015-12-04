@@ -47,3 +47,51 @@ var rclass = /[\t\r\n\f]/g;
 // 替换回车换行制表符为空格
 ( " " + elem.className + " " ).replace( rclass, " " )
 ```
+
+#### 匹配html文本
+
+*解释：* 匹配包含一个`<`的字符串或包含以`&#`,`&`开头并且以`;`结尾的字符串
+
+```javascript
+/<|&#?\w+;/.test('<some text');   //true
+/<|&#?\w+;/.test('some text &#123;');//true
+/<|&#?\w+;/.test('&123; some text');//true
+```
+
+#### 匹配标签名
+
+```javascript
+var rtagName = /<([\w:]+)/;
+rtagName.exec('<div>123</div>');    //["<div", "div"]
+rtagName.exec('<abc:>123</abc:>');  //["<abc:", "abc:"]
+```
+
+#### 
+
+* 匹配以`/>`结尾的字符串
+
+```javascript
+var reg = /(([\w:]+)[^>]*)\/>/gi;
+reg.test('123&&/>');    //true 
+```
+
+* 匹配一个'<'，后面不能是area|br|col|embed|hr|img|input|link|meta|param
+
+```javascript
+var reg = /<(?!area|br|col|embed|hr|img|input|link|meta|param)/gi;
+reg.exec('<div'); //匹配到一个'<'
+reg.exec('<area'); //null
+```
+
+* 替换类似<div/>为<div></div>,对于以下类型节点不替换area|br|col|embed|hr|img|input|link|meta|param
+
+```javascript
+var rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi;
+var html = '<br/>';
+
+var r1 = rxhtmlTag.exec(html);
+console.log(r1);
+var r2 = html.replace(rxhtmlTag, "<$1></$2>");
+console.log(r2);
+```
+

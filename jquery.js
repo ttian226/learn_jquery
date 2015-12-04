@@ -4,6 +4,7 @@
         push = arr.push,
         indexOf = arr.indexOf,
         slice = arr.slice,
+        concat = arr.concat,
         class2type = {},
         toString = class2type.toString,
         version = "1.0.0",
@@ -3110,6 +3111,56 @@
         }
     });
 
+    var rhtml = /<|&#?\w+;/,
+        rtagName = /<([\w:]+)/,
+        rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi;
+
+    jQuery.extend({
+        buildFragment: function (elems, context, scripts, selection) {
+            var elem, tmp, tag,
+                fragment = context.createDocumentFragment(),
+                nodes = [],
+                i = 0,
+                l = elems.length;
+
+            for (; i < l; i++) {
+                elem = elems[i];
+
+                if (elem || elem === 0) {
+                    if (jQuery.type(elem) === 'object') {
+                        // jQuery对象或Dom
+                    } else if (!rhtml.test(elem)) {
+                        // 把非html文本转换为文本节点
+                        nodes.push(context.createTextNode(elem));
+                    } else {
+                        // 把html文本转换为Dom
+                        tmp = tmp || fragment.appendChild(context.createElement('div'));
+                        // 获取标签名
+                        tag = (rtagName.exec(elem) || ['', ''])[1].toLowerCase();
+                        // 把类似<div/>这样的节点替换为<div></div>,并把html文本加入到临时节点中
+                        tmp.innerHTML = elem.replace(rxhtmlTag, '<$1></$2>');
+
+                        // 把新的节点添加到nodes中
+                        jQuery.merge(nodes, tmp.childNodes);
+                        tmp = fragment.firstChild;
+                        tmp.textContent = '';
+                    }
+                }
+            }
+
+            // 移除fragment最外层的包裹节点<div>
+            fragment.textContent = '';
+
+            i = 0;
+            // 遍历nodes保存的节点,加入fragment中去
+            while (elem = nodes[i++]) {
+                fragment.appendChild(elem);
+            }
+
+            return fragment;
+        }
+    });
+
     jQuery.fn.extend({
         text: function (value) {
             var func = function (value) {
@@ -3128,6 +3179,12 @@
             return access(this, func, null, value, arguments.length);
         },
 
+        append: function () {
+            return this.domManip(arguments, function (elem) {
+
+            })
+        },
+
         empty: function () {
             var elem,
                 i = 0;
@@ -3141,6 +3198,18 @@
             }
 
             return this;
+        },
+
+        domManip: function (args, callback) {
+            // 抹平嵌套的数组,这里args可以是[item1, item2]或[[item1, item2]]
+            args = concat.apply([], args);
+
+            var fragment,
+                l = this.length;
+
+            if (l) {
+                fragment = jQuery.buildFragment(args, this[0].ownerDocument, false, this);
+            }
         }
     });
 
