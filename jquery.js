@@ -188,6 +188,34 @@
             return first;
         },
 
+        map: function (elems, callback) {
+            var value,
+                i = 0,
+                length = elems.length,
+                isArray = isArraylike(elems),
+                ret = [];
+
+            if (isArray) {
+                for (; i < length; i++) {
+                    value = callback(elems[i], i);
+
+                    if (value != null) {
+                        ret.push(value);
+                    }
+                }
+            } else {
+                for (i in elems) {
+                    value = callback(elems[i], i);
+
+                    if (value != null) {
+                        ret.push(value);
+                    }
+                }
+            }
+
+            return concat.apply([], ret);
+        },
+
         // 判断对象是否为空
         isEmptyObject: function(obj) {
             var name;
@@ -3130,6 +3158,10 @@
         };
 
     jQuery.extend({
+        clone: function (elem) {
+            var clone = elem.cloneNode(true);
+            return clone;
+        },
         buildFragment: function (elems, context, scripts, selection) {
             var elem, tmp, tag, wrap, j,
                 fragment = context.createDocumentFragment(),
@@ -3213,9 +3245,32 @@
 
         append: function () {
             return this.domManip(arguments, function (elem) {
-                var target = manipulationTarget(this, elem);
-                target.appendChild(elem);
-            })
+                if (this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9) {
+                    var target = manipulationTarget(this, elem);
+                    target.appendChild(elem);
+                }
+            });
+        },
+
+        prepend: function () {
+            return this.domManip(arguments, function (elem) {
+                if (this.nodeType === 1 || this.nodeType === 11 || this.nodeType === 9) {
+                    var target = manipulationTarget(this, elem);
+                    target.insertBefore(elem, target.firstChild);
+                }
+            });
+        },
+
+        before: function () {
+            return this.domManip(arguments, function (elem) {
+                if (this.parentNode) {
+                    this.parentNode.insertBefore(elem, this);
+                }
+            });
+        },
+
+        after: function () {
+
         },
 
         empty: function () {
