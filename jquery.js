@@ -18,6 +18,11 @@
     jQuery.fn = jQuery.prototype = {
         constructor: jQuery,
         init: function(selector) {
+            // $(""), $(null), $(undefined), $(false)
+            if (!selector) {
+                return this;
+            }
+
             // 通过css选择器返回的jQuery对象
             if (typeof selector === 'string') {
                 this.selector = selector;
@@ -38,6 +43,14 @@
         each: function(callback, args) {
             return jQuery.each(this, callback, args);
         },
+
+        map: function (callback) {
+            var ret = jQuery.map(this, function (elem, i) {
+                return callback.call(elem, i, elem);
+            });
+            return this.pushStack(ret);
+        },
+
         get: function (num) {
             return num != null ?
 
@@ -3286,6 +3299,12 @@
             }
 
             return this;
+        },
+
+        clone: function () {
+            this.map(function () {
+                //console.log(this);
+            });
         },
 
         domManip: function (args, callback) {
