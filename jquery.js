@@ -3210,6 +3210,7 @@
     var rhtml = /<|&#?\w+;/,
         rtagName = /<([\w:]+)/,
         rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
+        rnoInnerhtml = /<(?:script|style|link)/i,
 
         // 对添加的如下标签做特殊处理,例如tr标签添加到div后会变成文本节点
         wrapMap = {
@@ -3374,6 +3375,45 @@
             return this.map(function () {
                 return jQuery.clone(this);
             });
+        },
+
+        html: function (value) {
+            var func = function (value) {
+                var elem = this[0] || {},
+                    i = 0,
+                    l = this.length;
+
+                // 获取html内容
+                if (value === undefined && elem.nodeType === 1) {
+                    return elem.innerHTML;
+                }
+
+                // 设置html内容,不允许是style,link,script标签,不允许是wrapMap里的标签tr,td等
+                if (typeof value === 'string' && !rnoInnerhtml.test(value) &&
+                    !wrapMap[(rtagName.exec(value) || ['', ''])[1].toLowerCase()]) {
+
+                    // 把类似<div/>这样的节点替换为<div></div>
+                    value = value.replace(rxhtmlTag, '<$1></$2>');
+
+                    try {
+                        for (; i < l; i++) {
+                            elem = this[i] || {};
+
+                            if (elem.nodeType === 1) {
+                                elem.innerHTML = value;
+                            }
+                        }
+
+                        elem = 0;
+                    } catch (e) {}
+                }
+
+                // 如果innerHTML抛出异常执行
+                if (elem) {
+                    this.empty().append(value);
+                }
+            };
+            return access(this, func, null, value, arguments.length);
         },
 
         domManip: function (args, callback) {

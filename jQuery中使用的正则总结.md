@@ -95,3 +95,12 @@ var r2 = html.replace(rxhtmlTag, "<$1></$2>");
 console.log(r2);
 ```
 
+#### 限制innerHTML的字符串
+
+在innerHTML中是不允许使用以下标签的`<script><style><link>`
+
+```javascript
+var rnoInnerhtml = /<(?:script|style|link)/i;
+rnoInnerhtml.test('<script>'); //true
+rnoInnerhtml.test('<div>'); //false
+```
