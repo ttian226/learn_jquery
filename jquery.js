@@ -183,6 +183,26 @@
             return first;
         },
 
+        // 可以理解为filter函数
+        grep: function (elems, callback, invert) {
+            // 只有当inver为true时,筛选callback结果为false的值
+            // 默认情况下,筛选callback结果为true的值
+            var callbackInverse,
+                matches = [],
+                i = 0,
+                length = elems.length,
+                callbackExpect = !invert;
+
+            for (; i < length; i++) {
+                callbackInverse = callback(elems[i], i);
+                if (callbackInverse === callbackExpect) {
+                    matches.push(elems[i]);
+                }
+            }
+
+            return matches;
+        },
+
         map: function (elems, callback) {
             var value,
                 i = 0,
@@ -3169,6 +3189,24 @@
         }
     });
 
+    jQuery.filter = function (expr, elems, not) {
+        var elem = elems[0];
+
+        if (not) {
+            expr = ':not(' + expr + ')';
+        }
+
+        if (elems.length === 1 && elem.nodeType === 1) {
+            return jQuery.find.matchesSelector(elem, expr) ? [elem] : [];
+        } else {
+            // 多个节点时取匹配expr的一个节点
+            var list = jQuery.grep(elems, function (elem) {
+                return elem.nodeType === 1;
+            });
+            return jQuery.find.matches(expr, list);
+        }
+    };
+
     var rhtml = /<|&#?\w+;/,
         rtagName = /<([\w:]+)/,
         rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,
@@ -3297,8 +3335,24 @@
 
         after: function () {
             return this.domManip(arguments, function (elem) {
-
+                if (this.parentNode) {
+                    this.parentNode.insertBefore(elem, this.nextSibling);
+                }
             });
+        },
+
+        remove: function (selector) {
+            var elem,
+                elems = selector ? jQuery.filter(selector, this) : this,
+                i = 0;
+
+            for (; (elem = elems[i]) != null; i++) {
+                if (elem.parentNode) {
+                    elem.parentNode.removeChild(elem);
+                }
+            }
+
+            return this;
         },
 
         empty: function () {
