@@ -8,6 +8,7 @@
         class2type = {},
         toString = class2type.toString,
         version = "1.0.0",
+        document = window.document,
         rtrim = /^[\s]+|[\s]+$/g;
 
     var jQuery = function(selector) {
@@ -17,29 +18,11 @@
     //实例方法
     jQuery.fn = jQuery.prototype = {
         constructor: jQuery,
-        init: function(selector) {
-            // $(""), $(null), $(undefined), $(false)
-            if (!selector) {
-                return this;
-            }
 
-            // 通过css选择器返回的jQuery对象
-            if (typeof selector === 'string') {
-                this.selector = selector;
-                var elems = document.querySelectorAll(selector);
-                this.length = elems.length;
-                for (var i = 0; i < elems.length; i++) {
-                    this[i] = elems[i];
-                }
-                return this;
-            } else if (selector.nodeType) {
-                // 处理$(DOMElement)返回的jQuery对象
-                this[0] = selector;
-                this.length = 1;
-                return this;
-            }
+        selector: '',
 
-        },
+        length: 0,
+
         each: function(callback, args) {
             return jQuery.each(this, callback, args);
         },
@@ -83,7 +66,6 @@
         }
     };
 
-    jQuery.fn.init.prototype = jQuery.fn;
 
     jQuery.extend = jQuery.fn.extend = function() {
         var options, name, copy,
@@ -258,6 +240,37 @@
     jQuery.each("Boolean Number String Function Array Date RegExp Object Error".split(" "), function(i, name) {
         class2type["[object " + name + "]"] = name.toLowerCase();
     });
+
+    var rootjQuery,
+        init = jQuery.fn.init = function (selector) {
+            // $(""), $(null), $(undefined), $(false)
+            if (!selector) {
+                return this;
+            }
+
+            // 通过css选择器返回的jQuery对象
+            if (typeof selector === 'string') {
+                this.selector = selector;
+                var elems = document.querySelectorAll(selector);
+                this.length = elems.length;
+                for (var i = 0; i < elems.length; i++) {
+                    this[i] = elems[i];
+                }
+                return this;
+            } else if (selector.nodeType) {
+                // 处理$(DOMElement)返回的jQuery对象
+                this.context = this[0] = selector;
+                this.length = 1;
+                return this;
+            }
+
+            //return jQuery.makeArray(selector, this);
+        };
+
+    init.prototype = jQuery.fn;
+
+    rootjQuery = jQuery(document);
+
 
     function isArraylike(obj) {
         //如果是数组返回长度
@@ -3303,7 +3316,6 @@
 
         clone: function () {
             this.map(function () {
-                //console.log(this);
             });
         },
 
