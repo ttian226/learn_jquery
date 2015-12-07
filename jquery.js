@@ -3296,7 +3296,9 @@
         },
 
         after: function () {
+            return this.domManip(arguments, function (elem) {
 
+            });
         },
 
         empty: function () {
@@ -3315,7 +3317,8 @@
         },
 
         clone: function () {
-            this.map(function () {
+            return this.map(function () {
+                return jQuery.clone(this);
             });
         },
 
@@ -3324,8 +3327,9 @@
             args = concat.apply([], args);
 
             var fragment, first, node,
-                i = 0;
-                l = this.length;
+                i = 0,
+                l = this.length,
+                iNoClone = l - 1;
 
             if (l) {
                 // 返回生成的文档片段
@@ -3341,6 +3345,12 @@
                 if (first) {
                     for (; i < l; i++) {
                         node = fragment;
+
+                        // 当有多个匹配的元素时,只有最后的一个元素不会被clone
+                        if (i !== iNoClone) {
+                            // 返回被clone的元素
+                            node = jQuery.clone(node);
+                        }
                         callback.call(this[i], node, i);
                     }
                 }
