@@ -11,8 +11,8 @@
         document = window.document,
         rtrim = /^[\s]+|[\s]+$/g;
 
-    var jQuery = function(selector) {
-        return new jQuery.fn.init(selector);
+    var jQuery = function(selector, context) {
+        return new jQuery.fn.init(selector, context);
     };
 
     //实例方法
@@ -3532,10 +3532,33 @@
 
     jQuery.each({
         appendTo: 'append',
-        prependTo: 'prepend'
+        prependTo: 'prepend',
+        insertBefore: 'before',
+        insertAfter: 'after',
+        replaceAll: 'replaceWith'
     }, function (name, original) {
         jQuery.fn[name] = function (selector) {
+            var elems,
+                ret = [],
+                insert = jQuery(selector),  //目标元素
+                last = insert.length - 1,
+                i = 0;
 
+            // 遍历目标元素
+            for (; i <= last; i++) {
+                // elems是要操作的对象
+                // 如果是最后一个元素取this,如果不是最后一个元素取它的clone对象
+                elems = i === last ? this : this.clone();
+
+                // insert[i]为目标元素的DOM对象
+                // jQuery(insert[i])为当前目标元素的jQuery对象
+                jQuery(insert[i])[original](elems);
+
+                push.apply(ret, elems.get());
+            }
+
+            // 返回操作元素的jQuery对象
+            return this.pushStack(ret);
         };
     });
 
