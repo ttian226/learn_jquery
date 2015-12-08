@@ -261,6 +261,24 @@
         class2type["[object " + name + "]"] = name.toLowerCase();
     });
 
+    jQuery.fn.extend({
+        find: function (selector) {
+            var i = 0,
+                len = this.length,
+                ret = [],
+                self = this;
+
+            for (; i < len; i++) {
+                jQuery.find(selector, self[i], ret);
+            }
+
+            ret = this.pushStack(len > 1 ? jQuery.unique(ret) : ret);
+            ret.selector = this.selector ? this.selector + ' ' + selector : selector;
+
+            return ret;
+        }
+    });
+
     var rootjQuery,
 
         // 匹配html标签或者匹配'#id'
@@ -308,24 +326,27 @@
                         return this;
                     }
                 } else if (!context || context.jQuery) {
-                    //return (context || rootjQuery).find(selector);
-                }
+                    // 目测除了$(#id),$(html)两种情况都走这里
+                    return (context || rootjQuery).find(selector);
+                } else {
 
-                this.selector = selector;
-                var elems = document.querySelectorAll(selector);
-                this.length = elems.length;
-                for (var i = 0; i < elems.length; i++) {
-                    this[i] = elems[i];
                 }
-                return this;
             } else if (selector.nodeType) {
                 // 处理$(DOMElement)返回的jQuery对象
                 this.context = this[0] = selector;
                 this.length = 1;
                 return this;
+            } else if (jQuery.isFunction(selector)) {
+                // 处理document ready
             }
 
-            //return jQuery.makeArray(selector, this);
+            // 处理$($(selector))
+            if (selector.selector !== undefined) {
+                this.selector = selector.selector;
+                this.context = selector.context;
+            }
+
+            return jQuery.makeArray(selector, this);
         };
 
     init.prototype = jQuery.fn;
