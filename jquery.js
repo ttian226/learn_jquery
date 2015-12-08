@@ -262,10 +262,12 @@
     });
 
     var rootjQuery,
-        rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/,
+
+        // 匹配html标签或者匹配'#id'
+        rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*|#([\w-]*))$/,
 
         init = jQuery.fn.init = function (selector, context) {
-            var match;
+            var match, elem;
 
             // $(""), $(null), $(undefined), $(false)
             if (!selector) {
@@ -292,7 +294,21 @@
                         context = context && context.nodeType ? context.ownerDocument || context : document;
                         jQuery.merge(this, jQuery.parseHTML(match[1], context));
                         return this;
+                    } else {
+                        // 处理$(#id)
+                        elem = document.getElementById(match[2]);
+
+                        if (elem && elem.parentNode) {
+                            this.length = 1;
+                            this[0] = elem;
+                        }
+
+                        this.context = document;
+                        this.selector = selector;
+                        return this;
                     }
+                } else if (!context || context.jQuery) {
+                    //return (context || rootjQuery).find(selector);
                 }
 
                 this.selector = selector;
