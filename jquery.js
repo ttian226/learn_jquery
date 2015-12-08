@@ -264,7 +264,7 @@
     var rootjQuery,
         rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/,
 
-        init = jQuery.fn.init = function (selector) {
+        init = jQuery.fn.init = function (selector, context) {
             var match;
 
             // $(""), $(null), $(undefined), $(false)
@@ -283,10 +283,15 @@
                 }
 
                 // 如果match为null则不是html字符串
-                if (match && match[1]) {
+                if (match && (match[1] || !context)) {
 
                     // 处理$(html)
                     if (match[1]) {
+                        context = context instanceof jQuery ? context[0] : context;
+
+                        context = context && context.nodeType ? context.ownerDocument || context : document;
+                        jQuery.merge(this, jQuery.parseHTML(match[1], context));
+                        return this;
                     }
                 }
 
