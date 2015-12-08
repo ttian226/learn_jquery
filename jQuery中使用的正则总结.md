@@ -104,3 +104,23 @@ var rnoInnerhtml = /<(?:script|style|link)/i;
 rnoInnerhtml.test('<script>'); //true
 rnoInnerhtml.test('<div>'); //false
 ```
+
+#### 检查HTML字符串
+
+```javascript
+var rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/;
+rquickExpr.exec('<div>123</div>');  //["<div>123</div>", "<div>123</div>"]
+```
+
+#### 匹配单独的标签(空标签)
+
+`<\/\1>`中的`\1`代表第一个括号里`(\w+)`匹配的分组。这里因为匹配的第一个分组是`div`，`<\/\1>`则匹配字符串`</div>`
+
+```javascript
+var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
+rsingleTag.exec('<div></div>'); //["<div></div>", "div"]
+rsingleTag.exec('<br/>');   //["<br/>", "br"]
+rsingleTag.exec('<div>123</div>'); //null
+```
+
+

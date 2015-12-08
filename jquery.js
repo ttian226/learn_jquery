@@ -262,7 +262,11 @@
     });
 
     var rootjQuery,
+        rquickExpr = /^(?:\s*(<[\w\W]+>)[^>]*)$/,
+
         init = jQuery.fn.init = function (selector) {
+            var match;
+
             // $(""), $(null), $(undefined), $(false)
             if (!selector) {
                 return this;
@@ -270,6 +274,22 @@
 
             // 通过css选择器返回的jQuery对象
             if (typeof selector === 'string') {
+                if (selector[0] === '<' && selector[selector.length - 1] === '>' && selector.length >= 3) {
+                    // 假设字符串是匹配<>,则跳过正则检测
+                    match = [null, selector, null];
+                } else {
+                    // 正则检查html
+                    match = rquickExpr.exec(selector);
+                }
+
+                // 如果match为null则不是html字符串
+                if (match && match[1]) {
+
+                    // 处理$(html)
+                    if (match[1]) {
+                    }
+                }
+
                 this.selector = selector;
                 var elems = document.querySelectorAll(selector);
                 this.length = elems.length;
@@ -3416,6 +3436,20 @@
             return access(this, func, null, value, arguments.length);
         },
 
+        replaceWith: function () {
+            var arg = arguments[0];
+
+            this.domManip(arguments, function (elem) {
+                arg = this.parentNode;
+                if (arg) {
+                    arg.replaceChild(elem, this);
+                }
+            });
+
+            // 如果参数为空,强制删除这个元素
+            return arg && (arg.length || arg.nodeType) ? this : this.remove();
+        },
+
         domManip: function (args, callback) {
             // 抹平嵌套的数组,这里args可以是[item1, item2]或[[item1, item2]]
             args = concat.apply([], args);
@@ -3453,6 +3487,37 @@
             return this;
         }
     });
+
+    jQuery.each({
+        appendTo: 'append',
+        prependTo: 'prepend'
+    }, function (name, original) {
+        jQuery.fn[name] = function (selector) {
+
+        };
+    });
+
+    var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
+
+    jQuery.parseHTML = function (data, context) {
+        if (!data || typeof data !== 'string') {
+            return null;
+        }
+
+        context = context || document;
+
+        var parsed = rsingleTag.exec(data);
+
+        // 如果是一个单独的空标签如'<div></div>','<br/>'等
+        if (parsed) {
+            return [context.createElement(parsed[1])];
+        }
+
+        // 创建文档片段
+        parsed = jQuery.buildFragment([data], context);
+
+        return jQuery.merge([], parsed.childNodes);
+    };
 
     function returnTrue() {
         return true;
