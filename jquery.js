@@ -3708,7 +3708,7 @@
                 return;
             }
 
-            var type, hooks,
+            var type, hooks, ret,
                 origName = jQuery.camelCase(name),
                 style = elem.style;
 
@@ -3741,6 +3741,11 @@
 
             // 读取样式
             } else {
+                // 如果hooks对象包含get方法,返回get后的值
+                if (hooks && 'get' in hooks && (ret = hooks.get(elem, false, extra)) !== undefined) {
+                    return ret;
+                }
+
                 return style[name];
             }
         },
