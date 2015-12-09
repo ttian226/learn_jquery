@@ -3675,7 +3675,16 @@
         }
     }
 
+    function vendorPropName(style, name) {
+        if (name in style) {
+            return name;
+        }
+    }
+
     jQuery.extend({
+        cssHooks: {
+
+        },
         // 这些样式只能跟数字,不加'px'
         cssNumber: {
             "columnCount": true,
@@ -3691,14 +3700,23 @@
             "zIndex": true,
             "zoom": true
         },
-        style: function (elem, name, value) {
+        cssProps: {
+            "float": "cssFloat"
+        },
+        style: function (elem, name, value, extra) {
             if (!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style) {
                 return;
             }
 
-            var type,
+            var type, hooks,
                 origName = jQuery.camelCase(name),
                 style = elem.style;
+
+            // 如果origName在cssProps存在则获取它的值,如果不存在把新值加入cssProps对象中
+            name = jQuery.cssProps[origName] || (jQuery.cssProps[origName] = vendorPropName(style, origName));
+
+            // 获取cssHooks对象中是否存在指定的属性
+            hooks = jQuery.cssHooks[name] || jQuery.cssHooks[origName];
 
             // 设置样式
             if (value !== undefined) {
@@ -3714,7 +3732,12 @@
                     value += 'px';
                 }
 
-                style[name] = value;
+                // 1. 如果hooks对象不存在直接把value作为属性值
+                // 2. 如果hooks对象存在,但是对象中不存在set方法,直接把value作为属性值
+                // 3. 如果hooks对象存在,并且存在set方法,调用set方法,把返回的值赋值给value作为属性
+                if (!hooks || !('set' in hooks) || (value = hooks.set(elem, value, extra)) !== undefined) {
+                    style[name] = value;
+                }
 
             // 读取样式
             } else {
