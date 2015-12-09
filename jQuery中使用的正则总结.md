@@ -123,4 +123,16 @@ rsingleTag.exec('<br/>');   //["<br/>", "br"]
 rsingleTag.exec('<div>123</div>'); //null
 ```
 
+#### 把字符串转换为驼峰形式
+
+例如把'z-index'转换为'zIndex'
+
+```javascript
+var rdashAlpha = /-([\da-z])/gi;
+var str = 'z-index';
+str.replace(rdashAlpha, function (match, letter) {
+    return letter.toUpperCase();
+});
+```
+
 

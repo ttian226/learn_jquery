@@ -9,7 +9,8 @@
         toString = class2type.toString,
         version = "1.0.0",
         document = window.document,
-        rtrim = /^[\s]+|[\s]+$/g;
+        rtrim = /^[\s]+|[\s]+$/g,
+        rdashAlpha = /-([\da-z])/gi;
 
     var jQuery = function(selector, context) {
         return new jQuery.fn.init(selector, context);
@@ -110,6 +111,12 @@
 
         nodeName: function (elem, name) {
             return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
+        },
+
+        camelCase: function (string) {
+            return string.replace(rdashAlpha, function (all, letter) {
+                return letter.toUpperCase();
+            });
         },
 
         each: function(obj, callback, args) {
@@ -3690,6 +3697,7 @@
             }
 
             var type,
+                origName = jQuery.camelCase(name),
                 style = elem.style;
 
             // 设置样式
@@ -3702,7 +3710,7 @@
                 }
 
                 // 特定的样式除外,如果值是数字后面需要加上'px'
-                if (type === 'number' && !jQuery.cssNumber[name]) {
+                if (type === 'number' && !jQuery.cssNumber[origName]) {
                     value += 'px';
                 }
 
