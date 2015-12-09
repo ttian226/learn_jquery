@@ -2832,7 +2832,8 @@
     });
 
     var access = jQuery.access = function(elems, fn, key, value, chainable, emptyGet, raw) {
-        var len = elems.length,
+        var i = 0,
+            len = elems.length,
             bulk = key == null;
 
         // 设置多个值
@@ -2851,6 +2852,12 @@
                     // set时，fn只接受一个参数
                     fn.call(elems, value);
                     fn = null;
+                }
+            }
+
+            if (fn) {
+                for (; i < len; i++) {
+                    fn(elems[i], key, value);
                 }
             }
         }
@@ -3562,29 +3569,53 @@
         };
     });
 
+    jQuery.fn.extend({
+        attr: function (name, value) {
+            return access(this, jQuery.attr, name, value, arguments.length > 1);
+        },
+
+        removeAttr: function (name) {
+            return this.each(function () {
+                jQuery.removeAttr(this, name);
+            });
+        }
+    });
+
     jQuery.extend({
-       attr: function (elem, name, value) {
-           var ret,
-               nType = elem.nodeType;
+        attr: function (elem, name, value) {
+            var ret,
+                nType = elem.nodeType;
 
-           if (!elem || nType === 3 || nType === 8 || nType === 2) {
-               return;
-           }
+            if (!elem || nType === 3 || nType === 8 || nType === 2) {
+                return;
+            }
 
-           if (value != undefined) {
-               // 设置attr
-               if (value === null) {
+            if (value != undefined) {
+                // 设置attr
+                if (value === null) {
+                    jQuery.removeAttr(elem, name);
+                } else {
+                    elem.setAttribute(name, value + '');
+                    return value;
+                }
+            } else {
+                // 获取attr
+                ret = jQuery.find.attr(elem, name);
+                return ret == null ? undefined : ret;
+            }
+        },
 
-               } else {
-                   elem.setAttribute(name, value + '');
-                   return value;
-               }
-           } else {
-               // 获取attr
-               ret = jQuery.find.attr(elem, name);
-               return ret == null ? undefined : ret;
-           }
-       }
+        removeAttr: function (elem, value) {
+            var name, propName,
+                i = 0,
+                attrNames = value && value.match(rnotwhite);
+
+            if (attrNames && elem.nodeType === 1) {
+                while (name = attrNames[i++]) {
+                    elem.removeAttribute(name);
+                }
+            }
+        }
     });
 
     var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);

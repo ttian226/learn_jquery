@@ -110,5 +110,7 @@ if (当前节点.parentNode) {
 读取：`Element.getAttribute()`返回元素指定属性的值
 设置：`Element.setAttribute()`给指定元素添加新的属性或改变原有的属性值
 
+#### removeAttr()
 
+`Element.removeAttribute()`删除指定元素的属性
 
