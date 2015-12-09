@@ -3562,6 +3562,31 @@
         };
     });
 
+    jQuery.extend({
+       attr: function (elem, name, value) {
+           var ret,
+               nType = elem.nodeType;
+
+           if (!elem || nType === 3 || nType === 8 || nType === 2) {
+               return;
+           }
+
+           if (value != undefined) {
+               // 设置attr
+               if (value === null) {
+
+               } else {
+                   elem.setAttribute(name, value + '');
+                   return value;
+               }
+           } else {
+               // 获取attr
+               ret = jQuery.find.attr(elem, name);
+               return ret == null ? undefined : ret;
+           }
+       }
+    });
+
     var rsingleTag = (/^<(\w+)\s*\/?>(?:<\/\1>|)$/);
 
     jQuery.parseHTML = function (data, context) {

@@ -105,5 +105,10 @@ if (当前节点.parentNode) {
 }
 ```
 
+#### attr()
+
+读取：`Element.getAttribute()`返回元素指定属性的值
+设置：`Element.setAttribute()`给指定元素添加新的属性或改变原有的属性值
+
 
 
