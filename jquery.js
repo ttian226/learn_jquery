@@ -3640,6 +3640,70 @@
         return jQuery.merge([], parsed.childNodes);
     };
 
+    function getStyles(elem) {
+        return window.getComputedStyle(elem, null);
+    }
+
+    function curCSS(elem, name, computed) {
+        computed = computed || getStyles(elem);
+
+        if (computed) {
+            return computed.getPropertyValue(name) || computed[name];
+        }
+    }
+
+    jQuery.extend({
+        // 这些样式只能跟数字,不加'px'
+        cssNumber: {
+            "columnCount": true,
+            "fillOpacity": true,
+            "flexGrow": true,
+            "flexShrink": true,
+            "fontWeight": true,
+            "lineHeight": true,
+            "opacity": true,
+            "order": true,
+            "orphans": true,
+            "widows": true,
+            "zIndex": true,
+            "zoom": true
+        },
+        style: function (elem, name, value) {
+            if (!elem || elem.nodeType === 3 || elem.nodeType === 8 || !elem.style) {
+                return;
+            }
+
+            var type,
+                style = elem.style;
+
+            if (value !== undefined) {
+                // 设置样式
+                type = typeof value;
+
+                // 值不能是null或NaN
+                if (value == null || value !== value) {
+                    return;
+                }
+
+                // 特定的样式除外,如果值是数字后面需要加上'px'
+                if (type === 'number' && !jQuery.cssNumber[name]) {
+                    value += 'px';
+                }
+
+                style[name] = value;
+
+            } else {
+                // 读取样式
+                return style[name];
+            }
+        },
+        css: function (elem, name, extra, styles) {
+
+            return curCSS(elem, name, styles);
+
+        }
+    });
+
     function returnTrue() {
         return true;
     }
