@@ -2838,8 +2838,12 @@
 
         // 设置多个值
         if (jQuery.type(key) === "object") {
+            chainable = true;
+            for (i in key) {
+                jQuery.access(elems, fn, i, key[i], true, emptyGet, raw);
+            }
 
-            // value存在(或者为空值)，只设置一个值
+        // value存在(或者为空值)，只设置一个值
         } else if (value !== undefined) {
             chainable = true;
 
@@ -2856,8 +2860,20 @@
             }
 
             if (fn) {
+                // set,在指定的dom元素上给key设置value
                 for (; i < len; i++) {
-                    fn(elems[i], key, value);
+                    var v;
+
+                    // value不为function时raw为true
+                    if (raw) {
+                        v = value;
+
+                    // value为function时
+                    } else {
+                        var vv = fn(elems[i], key);
+                        v = value.call(elems[i], i, vv);
+                    }
+                    fn(elems[i], key, v);
                 }
             }
         }
@@ -2869,9 +2885,9 @@
 
             // get
             bulk ?
-            // 通过fn返回get的值
-            fn.call(elems) :
-            len ? fn(elems[0], key) : emptyGet;
+                // 通过fn返回get的值
+                fn.call(elems) :
+                len ? fn(elems[0], key) : emptyGet;
 
     };
 
@@ -3676,8 +3692,8 @@
             var type,
                 style = elem.style;
 
+            // 设置样式
             if (value !== undefined) {
-                // 设置样式
                 type = typeof value;
 
                 // 值不能是null或NaN
@@ -3692,8 +3708,8 @@
 
                 style[name] = value;
 
+            // 读取样式
             } else {
-                // 读取样式
                 return style[name];
             }
         },
@@ -3701,6 +3717,38 @@
 
             return curCSS(elem, name, styles);
 
+        }
+    });
+
+    jQuery.fn.extend({
+        css: function (name, value) {
+            var func = function(elem, name, value) {
+                var styles, len,
+                    i = 0,
+                    map = {};
+
+                // 获取多个样式
+                if (jQuery.isArray(name)) {
+                    styles = getStyles(elem);
+                    len = name.length;
+
+                    for (; i < len; i++) {
+                        map[name[i]] = jQuery.css(elem, name[i], false, styles);
+                    }
+
+                    return map;
+                }
+
+                // 设置样式
+                if (value !== undefined) {
+                    jQuery.style(elem, name, value);
+                // 获取单个样式
+                } else {
+                    return jQuery.css(elem, name);
+                }
+            };
+
+            return access(this, func, name, value, arguments.length > 1);
         }
     });
 
