@@ -3750,9 +3750,27 @@
             }
         },
         css: function (elem, name, extra, styles) {
+            var hooks, val,
+                origName = jQuery.camelCase(name),
+                style = elem.style;
 
-            return curCSS(elem, name, styles);
+            // 如果origName在cssProps存在则获取它的值,如果不存在把新值加入cssProps对象中
+            name = jQuery.cssProps[origName] || (jQuery.cssProps[origName] = vendorPropName(style, origName));
 
+            // 获取cssHooks对象中是否存在指定的属性
+            hooks = jQuery.cssHooks[name] || jQuery.cssHooks[origName];
+
+            // 如果有get方法,通过get获取值
+            if (hooks && 'get' in hooks) {
+                val = hooks.get(elem, true, extra);
+            }
+
+            // 如果没有get方法
+            if (val === undefined) {
+                val = curCSS(elem, name, styles);
+            }
+
+            return val;
         }
     });
 
