@@ -3806,6 +3806,84 @@
         }
     });
 
+    var cssExpand = ['Top', 'Right', 'Bottom', 'Left'];
+
+    function augmentWidthOrHeight(elem, name, extra, isBorderBox, styles) {
+        var i,
+            val = 0;
+
+        if (extra === (isBorderBox ? 'border' : 'content')) {
+            i = 4;
+        } else {
+            i = name === 'width' ? 1 : 0;
+        }
+
+        for (; i < 4; i += 2) {
+            if (extra === 'margin') {
+
+            }
+
+            if (isBorderBox) {
+                if (extra === 'content') {
+
+                }
+
+                if (extra !== 'margin') {
+                    val -= jQuery.css(elem, 'border' + cssExpand[i] + 'Width', true, styles);
+                }
+            }
+        }
+
+        return val;
+    }
+
+    jQuery.each(['height', 'width'], function (i, name) {
+        jQuery.cssHooks[name] = {
+            get: function (elem, computed, extra) {
+                if (computed) {
+
+                }
+            },
+
+            set: function () {
+
+            }
+        };
+    });
+
+    jQuery.each({Height: 'height', Width: 'width'}, function (name, type) {
+        jQuery.each({padding: 'inner' + name, content: type, '': 'outer' + name}, function (defaultExtra, funcName) {
+
+            // $.fn.height;$.fn.innerHeight;$.fn.outerHeight;
+            // $.fn.width;$.fn.innerWidth;$.fn.outerWidth;
+            jQuery.fn[funcName] = function (margin, value) {
+
+                /**
+                 * funcName=height||width时,defaultExtra='content'
+                 * funcName=innerHeight||innerWidth时,defaultExtra='padding'
+                 * funcName=outerHeight||outerWidth时,defaultExtra=''
+                 *
+                 * 当不传任何参数时chainable=0
+                 * height,width,innerHeight,innerWidth时,当有参数时chainable=defaultExtra
+                 * outerHeight,outerWidth时,当有参数并且类型不为布尔型时chainable=true,为布尔型时=false
+                 */
+
+                var chainable = arguments.length && (defaultExtra || typeof margin !== 'boolean');
+
+                /**
+                 * height,width,innerHeight,innerWidth时,extra=defaultExtra(content或padding)
+                 * outerHeight,outerWidth时,第一个参数=true或第二个参数=true时extra='margin'否则extra='border'
+                 */
+                var extra = defaultExtra || (margin === true || value === true ? 'margin' : 'border');
+
+
+                var func = function () {
+
+                };
+            }
+        });
+    });
+
     function returnTrue() {
         return true;
     }

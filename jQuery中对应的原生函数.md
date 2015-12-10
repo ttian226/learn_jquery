@@ -114,3 +114,44 @@ if (当前节点.parentNode) {
 
 `Element.removeAttribute()`删除指定元素的属性
 
+#### css()
+
+设置样式
+
+`HTMLElement.style`属性返回一个`CSSStyleDeclaration`对象。它只会获取元素节点style属性内的css样式，不会获取样式表中存在的样式
+
+```javascript
+var elem = document.getElementById(元素id);
+var style = elem.style; //返回一个CSSStyleDeclaration对象
+style[属性名] = 属性值;//给指定的属性赋值
+```
+
+获取样式
+
+`window.getComputedStyle`返回一个`CSSStyleDeclaration`对象，包括所有的样式（style属性的样式和样式表中样式）
+`CSSStyleDeclaration.getComputedStyle(name)`获取指定的样式
+
+```javascript
+var elem = document.getElementById(元素id);
+var styles = window.getComputedStyle(elem, null);//获取样式集合,是CSSStyleDeclaration类型
+var style = styles.getPropertyValue(属性名); //获取样式
+```
+
+#### height()
+
+`$(window).height()`获取窗口的高度:`document.documentElement['clientHeight']`
+其中`document.documentElement`是获取文档对应的html元素。`Element.clientHeight`是获取元素的高度（包括padding+height）
+
+`$(document).height()`获取文档的高度：取下面5个值的最大的值
+1. body元素.scrollHeight
+2. body元素.offsetHeight
+3. html元素.scrollHeight
+4. html元素.offsetHeight
+5. html元素.clientHeight
+
+`Element.clientHeight`返回元素的高度（包括padding）
+`Element.scrollHeight`返回元素内容的高度
+`HTMLElement.offsetHeight`返回元素的高度（包括padding + border）
+
+
+
