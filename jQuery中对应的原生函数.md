@@ -155,16 +155,48 @@ var style = styles.getPropertyValue(属性名); //获取样式
 
 元素的height() = 元素offsetHeight高度 - 元素上下padding高度 - 元素上下border高度
 
+设置高度时：
+
+1.如果元素是border-content时：
+例如`$('#id).height(100)`实际上给元素的style属性添加一个样式
+
+```javascript
+var elem = document.getElementById(元素id);
+var style = elem.style; //返回一个CSSStyleDeclaration对象
+style['height'] = '100px';//给指定的属性赋值
+```
+
+2.如果元素是border-box时：
+`style['height'] = 100 + 元素上下padding的高度 + 元素上下border的高度`
+
 #### innerHeight()
 
 返回元素内容的高度 + 上下padding的高度(实际上就是HTMLElement.clientHeight的高度)
 
 元素的innerHeight() = 元素offsetHeight高度 - 元素上下border高度
 
+设置高度时：
+
+1.如果元素是border-content时：
+例如`$('#id).innerHeight(100)`
+`style['height'] = 100 - 上下padding的高度`
+
+2.如果元素是border-box时：
+例如`$('#id).innerHeight(100)`
+`style['height'] = 100 + 上下border的高度`
+
 #### outerHeight()
 
 `outerHeight()`返回元素内容的高度 + 上下padding的高度 + 上下border的高度（等于HTMLElement.offsetHeight）
 `outerHeight(true)`返回元素内容的高度 + 上下padding的高度 + 上下border的高度 + 上下margin的高度（等于HTMLElement.offsetHeight+上下margin的高度）
+
+1.如果元素是border-content时：
+例如`$('#id).outerHeight(100)`
+`style['height'] = 100 - 上下padding的高度 - 上下border的高度`
+
+2.如果元素是border-box时：
+例如`$('#id).outerHeight(100)`
+`style['height'] = 100`
 
 
 

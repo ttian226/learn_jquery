@@ -109,6 +109,10 @@
             return obj != null && obj === obj.window;
         },
 
+        isNumeric: function (obj) {
+            return !jQuery.isArray( obj ) && (obj - parseFloat( obj ) + 1) >= 0;
+        },
+
         nodeName: function (elem, name) {
             return elem.nodeName && elem.nodeName.toLowerCase() === name.toLowerCase();
         },
@@ -3750,7 +3754,7 @@
             }
         },
         css: function (elem, name, extra, styles) {
-            var hooks, val,
+            var hooks, val, num,
                 origName = jQuery.camelCase(name),
                 style = elem.style;
 
@@ -3768,6 +3772,12 @@
             // 如果没有get方法
             if (val === undefined) {
                 val = curCSS(elem, name, styles);
+            }
+
+            // 如果有'px'返回数字
+            if (extra === '' || extra) {
+                num = parseFloat(val);
+                return extra === true || jQuery.isNumeric( num ) ? num || 0 : val;
             }
 
             return val;
@@ -3806,14 +3816,28 @@
         }
     });
 
-    var cssExpand = ['Top', 'Right', 'Bottom', 'Left'];
+    var pnum = (/[+-]?(?:\d*\.|)\d+(?:[eE][+-]?\d+|)/).source;
+    var cssExpand = ['Top', 'Right', 'Bottom', 'Left'],
+        rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" );
+
+    // 根据偏差值修正长度
+    function setPositiveNumber(elem, value, subtract) {
+        var matches = rnumsplit.exec(value);
+        return matches ?
+            Math.max(0, matches[1] - (subtract || 0)) + (matches[2] || 'px') :
+            value;
+    }
 
     function augmentWidthOrHeight(elem, name, extra, isBorderBox, styles) {
         var i,
             val = 0;
 
-        // 通常情况下isBorderBox都为true,如果extra=border则i=4
-        // outerHeigth(),outerWidth()时i=4
+        /**
+         * 对于get来说isBorderBox都为true,如果extra=border则i=4
+         * outerHeigth(),outerWidth()时i=4
+         *
+         * 对于set来说,对于border-box布局为true,对于border-content布局为false
+         */
         if (extra === (isBorderBox ? 'border' : 'content')) {
             i = 4;
 
@@ -3842,6 +3866,16 @@
                 if (extra !== 'margin') {
                     val -= jQuery.css(elem, 'border' + cssExpand[i] + 'Width', true, styles);
                 }
+
+            // 这里set时才会走到,并且是box-content布局.innerXXX outerXXX
+            } else {
+                // innerXXX,outerXXX
+                val += jQuery.css(elem, 'padding' + cssExpand[i], true, styles);
+
+                // outerXXX
+                if (extra !== 'padding') {
+                    val += jQuery.css(elem, 'border' + cssExpand[i] + 'Width', true, styles);
+                }
             }
         }
 
@@ -3866,12 +3900,21 @@
         jQuery.cssHooks[name] = {
             get: function (elem, computed, extra) {
                 if (computed) {
-
+                    return getWidthOrHeight(elem, name, extra);
                 }
             },
 
-            set: function () {
-
+            set: function (elem, value, extra) {
+                var styles = extra && getStyles(elem);
+                return setPositiveNumber(elem, value, extra ?
+                    augmentWidthOrHeight(
+                        elem,
+                        name,
+                        extra,
+                        jQuery.css(elem, 'boxSizing', false, styles) === 'border-box',
+                        styles
+                    ) : 0
+                );
             }
         };
     });
@@ -3925,10 +3968,15 @@
                         );
                     }
 
+                    return value === undefined ?
+                        // 读取
+                        jQuery.css(elem, type, extra) :
 
+                        // 设置
+                        jQuery.style(elem, type, value, extra);
                 };
 
-                access(this, func, type, chainable ? margin : undefined, chainable, null);
+                return access(this, func, type, chainable ? margin : undefined, chainable, null);
             }
         });
     });
