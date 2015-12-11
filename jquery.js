@@ -3876,10 +3876,34 @@
                  */
                 var extra = defaultExtra || (margin === true || value === true ? 'margin' : 'border');
 
+                // 不传任何参数时,type='height'|'width',value=undefined
+                // 传整型参数时,type='height'|'width',value=具体数值
+                var func = function (elem, type, value) {
+                    var doc, body;
 
-                var func = function () {
+                    // 获取window高度|宽度,只能用于$(window).height()|$(window).width()
+                    if (jQuery.isWindow(elem)) {
+                        return elem.document.documentElement['client' + name];
+                    }
+
+                    if (elem.nodeType === 9) {
+                        // 取文档的html元素
+                        doc = elem.documentElement;
+
+                        // 取文档的body元素
+                        body = elem.body;
+
+                        return Math.max(
+                            body['scroll' + name], doc['scroll' + name],
+                            body['offset' + name], doc['offset' + name],
+                            doc['client' + name]
+                        );
+                    }
+
 
                 };
+
+                access(this, func, type, chainable ? margin : undefined, chainable, null)
             }
         });
     });
