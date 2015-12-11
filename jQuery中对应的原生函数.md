@@ -153,5 +153,19 @@ var style = styles.getPropertyValue(属性名); //获取样式
 `Element.scrollHeight`返回元素内容的高度
 `HTMLElement.offsetHeight`返回元素的高度（包括padding + border）
 
+元素的height() = 元素offsetHeight高度 - 元素上下padding高度 - 元素上下border高度
+
+#### innerHeight()
+
+返回元素内容的高度 + 上下padding的高度(实际上就是HTMLElement.clientHeight的高度)
+
+元素的innerHeight() = 元素offsetHeight高度 - 元素上下border高度
+
+#### outerHeight()
+
+`outerHeight()`返回元素内容的高度 + 上下padding的高度 + 上下border的高度（等于HTMLElement.offsetHeight）
+`outerHeight(true)`返回元素内容的高度 + 上下padding的高度 + 上下border的高度 + 上下margin的高度（等于HTMLElement.offsetHeight+上下margin的高度）
+
+
 
 

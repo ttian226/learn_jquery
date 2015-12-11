@@ -3812,29 +3812,54 @@
         var i,
             val = 0;
 
+        // 通常情况下isBorderBox都为true,如果extra=border则i=4
+        // outerHeigth(),outerWidth()时i=4
         if (extra === (isBorderBox ? 'border' : 'content')) {
             i = 4;
+
+        // height,innerHeight,outerHeigth(true)时i=0
+        // width,innerWidth,outerWidth(true)时i=1
         } else {
             i = name === 'width' ? 1 : 0;
         }
 
+        // height,innerHeight,width,innerWidth,outerHeigth(true),outerWidth(true)下进入循环
         for (; i < 4; i += 2) {
-            if (extra === 'margin') {
 
+            // outerHeigth(true),outerWidth(true)这两种情况下是margin,获取包括margin在内的长度
+            if (extra === 'margin') {
+                val += jQuery.css(elem, extra + cssExpand[i], true, styles);
             }
 
             if (isBorderBox) {
+                // height(),width()两种情况下元素高度=offset高度-padding高度
                 if (extra === 'content') {
-
+                    val -= jQuery.css(elem, 'padding' + cssExpand[i], true, styles);
                 }
 
+                // height(),width()再减去border高度
+                // innerHeight(),innerWidth(),extra='padding'
                 if (extra !== 'margin') {
                     val -= jQuery.css(elem, 'border' + cssExpand[i] + 'Width', true, styles);
                 }
             }
         }
 
+        // outerHeigth(),outerWidth()时val=0
         return val;
+    }
+
+    function getWidthOrHeight(elem, name, extra) {
+        var
+            // 取元素offsetWidth或offsetHeight的值
+            val = name === 'width' ? elem.offsetWidth : elem.offsetHeight,
+            styles = getStyles(elem),
+            // 是否是border-box布局
+            isBorderBox = jQuery.css(elem, 'boxSizing', false, styles) === 'border-box';
+
+        // extra未定义时isBorderBox才有用
+        var augval = augmentWidthOrHeight(elem, name, extra || (isBorderBox ? 'border' : 'content'), true, styles);
+        return val + augval + 'px';
     }
 
     jQuery.each(['height', 'width'], function (i, name) {
@@ -3903,7 +3928,7 @@
 
                 };
 
-                access(this, func, type, chainable ? margin : undefined, chainable, null)
+                access(this, func, type, chainable ? margin : undefined, chainable, null);
             }
         });
     });
