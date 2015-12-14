@@ -198,6 +198,68 @@ style['height'] = '100px';//给指定的属性赋值
 例如`$('#id).outerHeight(100)`
 `style['height'] = 100`
 
+#### offset()
+
+1. 获取相对于document的top,left
+
+`Node.ownerDocument`返回Node所属文档节点
+`Element.getBoundingClientRect()`返回元素相对于视窗的位置，一个DOMRect对象
+`Document.defaultView`获取文档对应的window对象
+`window.pageYOffset`是`Window.scrollY`的别名，返回文档垂直滚动的像素
+
+```javascript
+var docElem = 当前元素.ownerDocument;
+var win = docElem.defaultView;
+var box = 当前元素.getBoundingClientRect();
+return {
+    top: box.top + win.pageYOffset + docElem.clientTop
+    left: box.left + win.pageXOffset + docElem.clientLeft
+};
+```
+
+拿top来说，`top = 元素相对窗口的top值 + 文档垂直滚动的距离 + 文档的上边框高度`
+
+2. 设置offset:
+
+如果要设置的元素没有定位(static)
+
+```javascript
+var elem = 当前元素;
+
+// 设置当前元素定位为相对定位
+elem.style.position = 'relative';
+
+// 获取当前元素的offset
+var curOffset = $(elem).offset();
+
+var props = {};
+
+// 设置新的top值
+props.top = 要设置的top值 - curOffset.top;
+
+// 设置新的left值
+props.left = 要设置的left值 - curOffset.left;
+
+return props;
+```
+
+如果要设置的元素是相对定位或绝对定位，不改变其定位属性，只是改变top和left值
+
+```javascript
+// 设置新的top值
+props.top = 要设置的top值 - curOffset.top + 当前元素的top值（定位使用的top）
+
+// 设置新的left值
+props.left = 要设置的left值 - curOffset.left + 当前元素的left值（定位使用的left）
+```
+
+
+
+
+
+
+
+
 
 
 

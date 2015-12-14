@@ -3981,6 +3981,89 @@
         });
     });
 
+    // 根据文档对象获取window对象
+    function getWindow(elem) {
+        return jQuery.isWindow(elem) ? elem : elem.nodeType === 9 && elem.defaultView;
+    }
+
+    var strundefined = typeof undefined;    //'undefined'字符串
+
+    jQuery.offset = {
+        setOffset: function (elem, options, i) {
+            var curOffset, curCSSTop, curCSSLeft, curTop, curLeft,
+                position = jQuery.css(elem, 'position'),
+                curElem = jQuery(elem),
+                props = {};
+
+            if (position === 'static') {
+                elem.style.position = 'relative';
+            }
+
+            // 获取当前元素的offset
+            curOffset = curElem.offset();
+
+            // 获取元素的top,left值
+            curCSSTop = jQuery.css(elem, 'top');
+            curCSSLeft = jQuery.css(elem, 'left');
+
+            curTop = parseFloat(curCSSTop) || 0;
+            curLeft = parseFloat(curCSSLeft) || 0;
+
+            if (jQuery.isFunction(options)) {
+
+            }
+
+            if (options.top != null) {
+                props.top = (options.top - curOffset.top) + curTop;
+            }
+
+            if (options.left != null) {
+                props.left = (options.left - curOffset.left) + curLeft;
+            }
+
+            curElem.css(props);
+        }
+    };
+
+    jQuery.fn.extend({
+        offset: function (options) {
+
+            // 设置
+            if (arguments.length) {
+                return options === undefined ?
+                    this :
+                    this.each(function (i) {
+                        jQuery.offset.setOffset(this, options, i);
+                    });
+            }
+
+            var docElem, win,
+                elem = this[0],
+                box = {top: 0, left: 0},
+                doc = elem && elem.ownerDocument;
+
+            if (!doc) {
+                return;
+            }
+
+            // 获取document中的html元素
+            docElem = doc.documentElement;
+
+            // 获取元素的DOMRect对象
+            if (elem.getBoundingClientRect() !== strundefined) {
+                box = elem.getBoundingClientRect();
+            }
+
+            // 获取window对象
+            win = getWindow(doc);
+
+            return {
+                top: box.top + win.pageYOffset + docElem.clientTop,
+                left: box.left + win.pageXOffset + docElem.clientLeft
+            };
+        }
+    });
+
     function returnTrue() {
         return true;
     }
