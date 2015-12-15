@@ -254,12 +254,3 @@ props.left = 要设置的left值 - curOffset.left + 当前元素的left值（定
 ```
 
 
-
-
-
-
-
-
-
-
-

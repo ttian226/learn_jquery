@@ -3981,6 +3981,8 @@
         });
     });
 
+    var docElem = window.document.documentElement;
+
     // 根据文档对象获取window对象
     function getWindow(elem) {
         return jQuery.isWindow(elem) ? elem : elem.nodeType === 9 && elem.defaultView;
@@ -4061,6 +4063,55 @@
                 top: box.top + win.pageYOffset + docElem.clientTop,
                 left: box.left + win.pageXOffset + docElem.clientLeft
             };
+        },
+
+        position: function () {
+            if (!this[0]) {
+                return;
+            }
+
+            var offsetParent, offset,
+                elem = this[0],
+                parentOffset = {top: 0, left: 0};
+
+            if (jQuery.css(elem, 'position') === 'fixed') {
+
+            } else {
+                // 返回当前元素的offsetParent元素,是一个jQuery对象
+                offsetParent = this.offsetParent();
+
+                // 获取当前元素相对document的偏移
+                offset = this.offset();
+
+                // 设置parent元素相对document的偏移
+                if (!jQuery.nodeName(offsetParent[0], 'html')) {
+                    parentOffset = offsetParent.offset();
+                }
+
+                // 再加上边框的宽度
+                parentOffset.top += jQuery.css(offsetParent[0], 'borderTopWidth', true);
+                parentOffset.left += jQuery.css(offsetParent[0], 'borderLeftWidth', true);
+            }
+
+            return {
+                top: offset.top - parentOffset.top - jQuery.css(elem, 'marginTop', true),
+                left: offset.left - parentOffset.left -jQuery.css(elem, 'marginLeft', true)
+            }
+        },
+
+        offsetParent: function () {
+            return this.map(function () {
+                // 获取父节点
+                var offsetParent = this.offsetParent || docElem;
+
+                // 如果父节点没有定位,找到上面一层有定位的节点,如果都没有offsetParent=null
+                while (offsetParent && (!jQuery.nodeName(offsetParent, 'html') && jQuery.css(offsetParent, 'position') === 'static')) {
+                    offsetParent = offsetParent.offsetParent;
+                }
+
+                // 如果找不到有定位的节点返回html节点
+                return offsetParent || docElem;
+            });
         }
     });
 
