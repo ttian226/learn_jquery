@@ -3992,7 +3992,7 @@
 
     jQuery.offset = {
         setOffset: function (elem, options, i) {
-            var curOffset, curCSSTop, curCSSLeft, curTop, curLeft,
+            var curOffset, curCSSTop, curCSSLeft, curTop, curLeft, calculatePosition, curPosition,
                 position = jQuery.css(elem, 'position'),
                 curElem = jQuery(elem),
                 props = {};
@@ -4008,11 +4008,21 @@
             curCSSTop = jQuery.css(elem, 'top');
             curCSSLeft = jQuery.css(elem, 'left');
 
-            curTop = parseFloat(curCSSTop) || 0;
-            curLeft = parseFloat(curCSSLeft) || 0;
+            // absolute或fixed定位时,并且top,left至少有一个'auto'时
+            calculatePosition = (position === 'absolute' || position === 'fixed') &&
+                (curCSSTop + curCSSLeft).indexOf('auto') > -1;
+
+            if (calculatePosition) {
+                curPosition = curElem.position();
+                curTop = curPosition.top;
+                curLeft = curPosition.left;
+            } else {
+                curTop = parseFloat(curCSSTop) || 0;
+                curLeft = parseFloat(curCSSLeft) || 0;
+            }
 
             if (jQuery.isFunction(options)) {
-
+                options = options.call(elem, i, curOffset);
             }
 
             if (options.top != null) {
@@ -4074,8 +4084,11 @@
                 elem = this[0],
                 parentOffset = {top: 0, left: 0};
 
+            // fixed定位时
             if (jQuery.css(elem, 'position') === 'fixed') {
+                offset = elem.getBoundingClientRect();
 
+            // 非fixed定位时
             } else {
                 // 返回当前元素的offsetParent元素,是一个jQuery对象
                 offsetParent = this.offsetParent();
