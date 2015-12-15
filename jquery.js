@@ -10,7 +10,8 @@
         version = "1.0.0",
         document = window.document,
         rtrim = /^[\s]+|[\s]+$/g,
-        rdashAlpha = /-([\da-z])/gi;
+        rdashAlpha = /-([\da-z])/gi,
+        support = {};
 
     var jQuery = function(selector, context) {
         return new jQuery.fn.init(selector, context);
@@ -4156,6 +4157,137 @@
                 }
             }, method, val, arguments.length, null);
         };
+    });
+
+    (function () {
+        var input = document.createElement('input'),
+            select = document.createElement('select'),
+            opt = select.appendChild(document.createElement('option'));
+
+        support.optDisabled = !opt.disabled;
+    })();
+
+    jQuery.extend({
+        valHooks: {
+            option: {
+                // 对于支持html5浏览器,可以通过HTMLOptionElement.value获取,下面get方法是为了兼容IE
+                get: function (elem) {
+                    var val = jQuery.find.attr(elem, 'value');
+                    return val != null ?
+                        val :
+                        jQuery.trim(jQuery.text(elem));
+                }
+            },
+            select: {
+                get: function (elem) {
+                    var option, value,
+                        options = elem.options,
+                        index = elem.selectedIndex,
+
+                        // 单选,多选
+                        one = elem.type === 'select-one' || index < 0,
+                        values = one ? null : [],
+
+                        // 单选:selected option的起始索引+1,多选:option的个数
+                        max = one ? index + 1 : options.length,
+
+                        // 单选:selected option的起始索引,多选:0
+                        i = index < 0 ?
+                            max :
+                            one ? index : 0;
+
+                    // 遍历option,单选只遍历selected的一个,多选从头遍历到尾
+                    for (; i < max; i++) {
+                        option = options[i];
+
+                        if ((option.selected || i === index) &&
+                            // 不能是disabled
+                            (support.optDisabled ? !option.disabled : option.getAttribute('disabled') === null) &&
+                            // option的父元素不能是<optgroup>并且是disabled
+                            (!option.parentNode.disabled || !jQuery.nodeName(option.parentNode, 'optgroup'))) {
+
+                            // 获取option元素的value值
+                            value = jQuery(option).val();
+
+                            if (one) {
+                                return value;
+                            }
+
+                            // 多选,返回一个数组
+                            values.push(value);
+                        }
+                    }
+
+                    return values;
+                }
+            }
+        }
+    });
+
+    var rreturn = /\r/g;
+
+    jQuery.fn.extend({
+        val: function (value) {
+            var hooks, ret, isFunction,
+                elem = this[0];
+
+            // 获取value
+            if (!arguments.length) {
+                if (elem) {
+                    // 获取hooks对象
+                    hooks = jQuery.valHooks[elem.type] || jQuery.valHooks[elem.nodeName.toLocaleLowerCase()];
+
+                    // 如果存在hooks并且有get方法,调用get方法获取value
+                    if (hooks && 'get' in hooks && (ret = hooks.get(elem, 'value')) !== undefined) {
+                        return ret;
+                    }
+
+                    // 取对应Element元素的value属性
+                    ret = elem.value;
+
+                    return typeof ret === 'string' ?
+                        ret.replace(rreturn, '') :
+                        ret == null ? '' : ret;
+                }
+
+                return;
+            }
+
+            // 设置value
+            isFunction = jQuery.isFunction(value);
+
+            return this.each(function (i) {
+                var val;
+
+                if (this.nodeType !== 1) {
+                    return;
+                }
+
+                if (isFunction) {
+                    val = value.call(this, i, jQuery(this).val());
+                } else {
+                    val = value;
+                }
+
+                if (val == null) {
+                    val = '';
+                } else if (typeof val === 'number') {
+                    val += '';
+                } else if (jQuery.isArray(val)) {
+                    val = jQuery.map(val, function (value) {
+                        return value == null ? '' : value + '';
+                    });
+                }
+
+                // 获取hooks对象
+                hooks = jQuery.valHooks[this.type] || jQuery.valHooks[this.nodeName.toLocaleLowerCase()];
+
+                // 如果有set方法使用set方法设置value,如果没有把val赋给this.value
+                if (!hooks || !('set' in hooks) || hooks.set(this, val, 'value') === undefined) {
+                    this.value = val;
+                }
+            });
+        }
     });
 
     function returnTrue() {
