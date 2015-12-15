@@ -253,4 +253,42 @@ props.top = 要设置的top值 - curOffset.top + 当前元素的top值（定位�
 props.left = 要设置的left值 - curOffset.left + 当前元素的left值（定位使用的left）
 ```
 
+#### position()
+
+获取相对于父节点的相对位置
+
+`HTMLElement.offsetParent`返回一个包含这个元素并且离它最近的一个带有定位的元素
+
+```javascript
+// 获取当前元素的offsetParent节点
+var parent = 当前元素.offsetParent;
+
+// 获取当前元素的相对document的偏移
+var offset = $(当前元素).offset();
+
+// 获取parent元素相对文档的偏移
+var poffset = $(parent).offset();
+
+poffset.top += parent元素的上边框宽度
+poffset.left += parent元素的左边框宽度
+
+return {
+    top: offset.top - poffset.top - 当前元素marginTop宽度
+    left: offset.left - poffset.left - 当前元素marginLeft宽度
+}
+```
+
+#### scrollTop(),scrollLeft()
+
+`Element.scrollTop`读取或设置元素向上垂直滚动的像素
+`Element.scrollLeft`读取或设置元素水平向左滚动的像素
+`Window.scrollTo`滚动到文档的指定坐标
+
+读取元素的scrollTop:`return 当前元素.scrollTop`
+读取document的scrollTop:`return window.pageYOffset`
+
+设置元素的scrollTop:`当前元素.scrollTop = 要设置的值`
+设置document的scrollTop:`window.scrollTo(window.pageXOffset, 要设置的值)`
+设置document的scrollLeft:`window.scrollTo(要设置的值, window.pageYOffset)`
+
 

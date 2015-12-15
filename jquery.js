@@ -4115,6 +4115,36 @@
         }
     });
 
+    jQuery.each({scrollLeft: 'pageXOffset', scrollTop: 'pageYOffset'}, function (method, prop) {
+        var top = 'pageYOffset' === prop;
+
+        jQuery.fn[method] = function (val) {
+            return access(this, function (elem, method, val) {
+
+                // 获取document对象对应的window,如果不是文档对象返回false
+                var win = getWindow(elem);
+
+                // 获取
+                if (val === undefined) {
+
+                    // 如果是document返回window.pageXOffset或window.pageYOffset
+                    // 如果不是返回Element.scrollLeft或Element.scrollTop
+                    return win ? win[prop] : elem[method];
+                }
+
+                // 设置
+                if (win) {
+                    win.scrollTo(
+                        !top ? val : window.pageXOffset,
+                        top ? val : window.pageYOffset
+                    );
+                } else {
+                    elem[method] = val;
+                }
+            }, method, val, arguments.length, null);
+        };
+    });
+
     function returnTrue() {
         return true;
     }
