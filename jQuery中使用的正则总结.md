@@ -1,3 +1,10 @@
+#### 替换字符串中的回车
+
+```javascript
+var rreturn = /\r/g
+要替换的字符串.replace(rreturn, '');
+```
+
 #### 用空格分隔字符串
 
 ```javascript
