@@ -4164,6 +4164,11 @@
             select = document.createElement('select'),
             opt = select.appendChild(document.createElement('option'));
 
+        input.type = 'checkbox';
+
+        // <input type="checkbox">的value的默认值为'on'
+        support.checkOn = input.value !== '';
+
         support.optDisabled = !opt.disabled;
     })();
 
@@ -4219,7 +4224,50 @@
                     }
 
                     return values;
+                },
+
+                set: function (elem, value) {
+                    var optionSet, option,
+                        options = elem.options,
+
+                        // 要设置值的集合
+                        values = jQuery.makeArray(value),
+                        i = options.length;
+
+                    while (i--) {
+                        option = options[i];
+
+                        // 如果集合中包含当前value值,设置selected=true
+                        if (option.selected = (jQuery.inArray(option.value, values) >= 0)) {
+                            optionSet = true;
+                        }
+                    }
+
+                    // 没有找到匹配的option元素
+                    if (!optionSet) {
+                        elem.selectedIndex = -1;
+                    }
+                    return values;
                 }
+            }
+        }
+    });
+
+    jQuery.each(['radio', 'checkbox'], function (i, type) {
+        jQuery.valHooks[type] = {
+            set: function (elem, value) {
+                // 只处理value是数组的情况
+                if (jQuery.isArray(value)) {
+                    // 如果当前元素的value包含在数组中,设置这个元素的checked=true
+                    return (elem.checked = jQuery.inArray(jQuery(elem).val(), value) >= 0);
+                }
+            }
+        };
+
+        // 不支持checkOn时,有get方法
+        if (!support.checkOn) {
+            jQuery.valHooks[type].get = function (elem) {
+                return elem.getAttribute('value') === null ? 'on' : elem.value;
             }
         }
     });
