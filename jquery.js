@@ -61,6 +61,24 @@
             //返回这个新的jQuery对象
             return ret;
         },
+
+        eq: function (i) {
+            var len = this.length,
+
+                // j是正向索引,如果i>=0时j=i,如果i<0时j=i+len
+                j = +i + (i < 0 ? len : 0);
+
+            return this.pushStack(j >= 0 && j < len ? [this[j]] : []);
+        },
+
+        first: function () {
+            return this.eq(0);
+        },
+
+        last: function () {
+            return this.eq(-1);
+        },
+
         end: function () {
             //返回prevObject保存的jQuery对象
             //或返回当前jQuery对象，如果prevObject属性不存在。
@@ -4335,6 +4353,46 @@
                     this.value = val;
                 }
             });
+        }
+    });
+
+    jQuery.fn.extend({
+        wrapAll: function (html) {
+            var wrap;
+
+            if (jQuery.isFunction(html)) {
+                return this.each(function (i) {
+                    jQuery(this).wrapAll(html.call(this, i));
+                });
+            }
+
+            if (this[0]) {
+
+                // 返回html对应的jQuery对象,并返回它的一个拷贝
+                wrap = jQuery(html, this[0].ownerDocument).eq(0).clone(true);
+
+                if (this[0].parentNode) {
+
+                    // 把这个jQuery对象插入到第一个元素上面
+                    wrap.insertBefore(this[0]);
+                }
+
+                // 这里的wrap.map()返回了一个jQuery对象(对应wrap最内层的元素)
+                wrap.map(function () {
+
+                    // wrap对应的dom对象
+                    var elem = this;
+
+                    // 把最内层的dom元素赋给elem
+                    while (elem.firstElementChild) {
+                        elem = elem.firstElementChild;
+                    }
+
+                    return elem;
+                }).append(this);
+            }
+
+            return this;
         }
     });
 
