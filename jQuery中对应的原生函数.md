@@ -291,4 +291,6 @@ return {
 设置document的scrollTop:`window.scrollTo(window.pageXOffset, 要设置的值)`
 设置document的scrollLeft:`window.scrollTo(要设置的值, window.pageYOffset)`
 
+#### wrapAll
+
 

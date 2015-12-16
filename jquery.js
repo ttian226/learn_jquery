@@ -4393,7 +4393,62 @@
             }
 
             return this;
+        },
+
+        wrap: function (html) {
+            var isFunction = jQuery.isFunction(html);
+
+            return this.each(function (i) {
+                jQuery(this).wrapAll(isFunction ? html.call(this, i) : html);
+            });
+        },
+
+        unwrap: function () {
+
         }
+    });
+
+    var rparentsprev = /^(?:parents|prev(?:Until|All))/,
+        guaranteedUnique = {
+            children: true,
+            contents: true,
+            next: true,
+            prev: true
+        };
+
+    jQuery.each({
+        parent: function (elem) {
+            var parent = elem.parentNode;
+            return parent && parent.nodeType !== 11 ? parent : null;
+        }
+    }, function (name, fn) {
+        jQuery.fn[name] = function (until, selector) {
+            var matched = jQuery.map(this, fn, until);
+
+            if (name.slice(-5) !== 'Until') {
+                selector = until;
+            }
+
+            // 根据选择符过滤matched
+            if (selector && typeof selector === 'string') {
+                matched = jQuery.filter(selector, matched);
+            }
+
+            // 大于一个元素时
+            if (this.length > 1) {
+                // 不是children,contents,next,prev这四个方法时,去重数组
+                if (!guaranteedUnique[name]) {
+                    jQuery.unique(matched);
+                }
+
+                // parents,prevUntil,prevAll三个方法时,反转数组
+                if (rparentsprev.test(name)) {
+                    matched.reverse();
+                }
+            }
+
+            return this.pushStack(matched);
+        };
     });
 
     function returnTrue() {

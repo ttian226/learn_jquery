@@ -157,4 +157,11 @@ var rnumsplit = new RegExp( "^(" + pnum + ")(.*)$", "i" );//这里匹配已数�
 rnumsplit.exec('100px');//['100px', '100', 'px'],匹配到第一个分组是数字，第二个分组是字符串'px'
 ```
 
+#### 匹配以'parents','prevUntil','prevAll'开头的字符串
+
+```javascript
+var rparentsprev = /^(?:parents|prev(?:Until|All))/;
+rparentsprev.test('parents');   //true
+rparentsprev.test('prevAll');   //true
+```
 
