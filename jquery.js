@@ -4444,10 +4444,14 @@
     jQuery.extend({
         dir: function (elem, dir, until) {
             var matched = [],
+
+                // 这里until是选择器,如.parentsUntil('ul.level-1'),until='ul.level-1'
                 truncate = until !== undefined;
 
             while ( (elem = elem[dir]) && elem.nodeType !== 9) {
-                if (truncate) {
+
+                // 如果当前节点匹配until,跳出循环,matched是不包括这个节点的
+                if (truncate && jQuery(elem).is(until)) {
                     break;
                 }
 
@@ -4466,6 +4470,12 @@
             prev: true
         };
 
+    function sibling(cur, dir) {
+        // 找到第一个nodetype=1的节点
+        while ((cur = cur[dir]) && cur.nodeType !== 1) {}
+        return cur;
+    }
+
     jQuery.each({
         parent: function (elem) {
             var parent = elem.parentNode;
@@ -4473,6 +4483,15 @@
         },
         parents: function (elem) {
             return jQuery.dir(elem, 'parentNode');
+        },
+        parentsUntil: function (elem, i, until) {
+            return jQuery.dir(elem, 'parentNode', until);
+        },
+        next: function (elem) {
+            return sibling(elem, 'nextSibling');
+        },
+        prev: function (elem) {
+            return sibling(elem, 'previousSibling');
         }
     }, function (name, fn) {
         jQuery.fn[name] = function (until, selector) {
