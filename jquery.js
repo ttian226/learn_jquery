@@ -4408,6 +4408,56 @@
         }
     });
 
+    var risSimple = /^.[^:#\[\.,]*$/;
+
+    function winnow(elements,qualifier, not) {
+        if (jQuery.isFunction(qualifier)) {
+
+        }
+
+        if (qualifier.nodeType) {
+
+        }
+
+        if (typeof qualifier === 'string') {
+            // 匹配css选择器
+            if (risSimple.test(qualifier)) {
+                return jQuery.filter(qualifier, elements, not);
+            }
+        }
+    }
+
+    var rneedsContext = jQuery.expr.match.needsContext;
+
+    jQuery.fn.extend({
+        is: function (selector) {
+            return !!winnow(
+                this,
+                typeof selector === 'string' && rneedsContext.test(selector) ?
+                    jQuery(selector) :
+                    selector || [],
+                false
+            ).length;
+        }
+    });
+
+    jQuery.extend({
+        dir: function (elem, dir, until) {
+            var matched = [],
+                truncate = until !== undefined;
+
+            while ( (elem = elem[dir]) && elem.nodeType !== 9) {
+                if (truncate) {
+                    break;
+                }
+
+                matched.push(elem);
+            }
+
+            return matched;
+        }
+    });
+
     var rparentsprev = /^(?:parents|prev(?:Until|All))/,
         guaranteedUnique = {
             children: true,
@@ -4420,6 +4470,9 @@
         parent: function (elem) {
             var parent = elem.parentNode;
             return parent && parent.nodeType !== 11 ? parent : null;
+        },
+        parents: function (elem) {
+            return jQuery.dir(elem, 'parentNode');
         }
     }, function (name, fn) {
         jQuery.fn[name] = function (until, selector) {
