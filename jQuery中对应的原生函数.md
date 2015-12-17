@@ -291,6 +291,27 @@ return {
 设置document的scrollTop:`window.scrollTo(window.pageXOffset, 要设置的值)`
 设置document的scrollLeft:`window.scrollTo(要设置的值, window.pageYOffset)`
 
-#### wrapAll
+#### parent()
+
+`Node.parentNode`
+
+#### parents()
+
+从当前节点循环查找parentNode,一直终止到document,返回所有的父节点。
+如果parents(selector)带参数，会根据selector对结果集筛选出匹配的父节点。
+
+#### parentsUntil(selector)
+
+查找过程同parents()，不是终止到document而是终止到selector（结果集并不包含selector匹配的父节点）
+如果带有第二个参数，会对结果集进行筛选
+
+#### next()
+
+`Node.nextSibling`通常会返回非nodeType=1的节点（如Text节点）
+next()只会返回nodeType=1的节点
+
+#### prev()
+
+`Node.previousSibling`，同next()，只会返回nodeType=1的节点
 
 
