@@ -233,7 +233,7 @@
             return matches;
         },
 
-        map: function (elems, callback) {
+        map: function (elems, callback, arg) {
             var value,
                 i = 0,
                 length = elems.length,
@@ -242,7 +242,7 @@
 
             if (isArray) {
                 for (; i < length; i++) {
-                    value = callback(elems[i], i);
+                    value = callback(elems[i], i, arg);
 
                     if (value != null) {
                         ret.push(value);
@@ -250,7 +250,7 @@
                 }
             } else {
                 for (i in elems) {
-                    value = callback(elems[i], i);
+                    value = callback(elems[i], i, arg);
 
                     if (value != null) {
                         ret.push(value);
@@ -4449,13 +4449,26 @@
                 truncate = until !== undefined;
 
             while ( (elem = elem[dir]) && elem.nodeType !== 9) {
+                if (elem.nodeType === 1) {
+                    // 如果当前节点匹配until,跳出循环,matched是不包括这个节点的
+                    if (truncate && jQuery(elem).is(until)) {
+                        break;
+                    }
 
-                // 如果当前节点匹配until,跳出循环,matched是不包括这个节点的
-                if (truncate && jQuery(elem).is(until)) {
-                    break;
+                    matched.push(elem);
                 }
+            }
 
-                matched.push(elem);
+            return matched;
+        },
+
+        sibling: function (first, elem) {
+            var matched = [];
+
+            while (first = first.nextSibling) {
+                if (first.nodeType === 1 && first !== elem) {
+                    matched.push(first);
+                }
             }
 
             return matched;
@@ -4492,6 +4505,24 @@
         },
         prev: function (elem) {
             return sibling(elem, 'previousSibling');
+        },
+        nextAll: function (elem) {
+            return jQuery.dir(elem, 'nextSibling');
+        },
+        prevAll: function (elem) {
+            return jQuery.dir(elem, 'previousSibling');
+        },
+        nextUntil: function (elem, i, until) {
+            return jQuery.dir(elem, 'nextSibling', until);
+        },
+        prevUntil: function (elem, i, until) {
+            return jQuery.dir(elem, 'previousSibling', until);
+        },
+        siblings: function (elem) {
+            return jQuery.sibling((elem.parentNode || {}).firstChild, elem);
+        },
+        children: function (elem) {
+            return jQuery.sibling(elem.firstChild);
         }
     }, function (name, fn) {
         jQuery.fn[name] = function (until, selector) {
