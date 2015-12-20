@@ -1,2 +1,3 @@
-# learn_jquery
-#### jquery源码学习笔记
+### learn_jquery
+
+jQuery源码学习笔记，一些总结。

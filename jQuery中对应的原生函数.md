@@ -314,4 +314,13 @@ next()只会返回nodeType=1的节点
 
 `Node.previousSibling`，同next()，只会返回nodeType=1的节点
 
+#### children(),siblings()
+
+两个接口实现一致：通过父元素找到第一个子元素，通过`nextSibling`遍历，把遍历到的元素保存到集合中，siblings()只是排除了当前元素
+
+#### contents()
+
+`Element.childNodes`，获取的是包括comment,text等节点
+如果是元素是iframe，获取的是`HTMLIFrameElement.contentDocument`
+
 
