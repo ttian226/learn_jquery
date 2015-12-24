@@ -4404,7 +4404,11 @@
         },
 
         unwrap: function () {
-
+            return this.parent().each(function () {
+                if (!jQuery.nodeName(this, 'body')) {
+                    jQuery(this).replaceWith(this.childNodes);
+                }
+            }).end();
         }
     });
 
@@ -4489,6 +4493,13 @@
         return cur;
     }
 
+    jQuery.fn.extend({
+        closest: function () {
+
+        }
+    });
+
+
     jQuery.each({
         parent: function (elem) {
             var parent = elem.parentNode;
@@ -4523,6 +4534,9 @@
         },
         children: function (elem) {
             return jQuery.sibling(elem.firstChild);
+        },
+        contents: function (elem) {
+            return elem.contentDocument || jQuery.merge([], elem.childNodes);
         }
     }, function (name, fn) {
         jQuery.fn[name] = function (until, selector) {
